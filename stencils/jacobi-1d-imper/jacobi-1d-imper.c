@@ -1,97 +1,120 @@
+/**
+ * jacobi-1d-imper.c: This file is part of the PolyBench 3.0 test suite.
+ *
+ *
+ * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
+ * Web address: http://polybench.sourceforge.net
+ */
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 #include <math.h>
 
-#include "instrument.h"
+/* Include polybench common header. */
+#include <polybench.h>
 
-/* Default problem size. */
-#ifndef TSTEPS
-# define TSTEPS 10000
-#endif
-#ifndef N
-# define N 4096
-#endif
+/* Include benchmark-specific header. */
+/* Default data type is double, default size is 100x10000. */
+#include "jacobi-1d-imper.h"
 
-/* Default data type is double. */
-#ifndef DATA_TYPE
-# define DATA_TYPE double
-#endif
-#ifndef DATA_PRINTF_MODIFIER
-# define DATA_PRINTF_MODIFIER "%0.2lf "
-#endif
 
-/* Array declaration. Enable malloc if POLYBENCH_TEST_MALLOC. */
-#ifndef POLYBENCH_TEST_MALLOC
-DATA_TYPE A[N];
-DATA_TYPE B[N];
-#else
-DATA_TYPE* A = (DATA_TYPE**)malloc(N * sizeof(DATA_TYPE));
-DATA_TYPE* B = (DATA_TYPE**)malloc(N * sizeof(DATA_TYPE));
-#endif
-
-static inline
-void init_array()
+/* Array initialization. */
+static
+void init_array (int n,
+		 DATA_TYPE POLYBENCH_1D(A,N),
+		 DATA_TYPE POLYBENCH_1D(B,N))
 {
-  int i, j;
+  int i;
 
-  for (i = 0; i < N; i++)
-    {
-      A[i] = ((DATA_TYPE) 4 * i + 10) / N;
-      B[i] = ((DATA_TYPE) 7 * i + 11) / N;
-    }
+  for (i = 0; i < n; i++)
+      {
+	A[i] = ((DATA_TYPE) i+ 2) / n;
+	B[i] = ((DATA_TYPE) i+ 3) / n;
+      }
 }
 
-/* Define the live-out variables. Code is not executed unless
-   POLYBENCH_DUMP_ARRAYS is defined. */
-static inline
-void print_array(int argc, char** argv)
+
+/* DCE code. Must scan the entire live-out data.
+   Can be used also to check the correctness of the output. */
+static
+void print_array(int n,
+		 DATA_TYPE POLYBENCH_1D(A,N))
+
 {
-  int i, j;
-#ifndef POLYBENCH_DUMP_ARRAYS
-  if (argc > 42 && ! strcmp(argv[0], ""))
-#endif
+  int i;
+
+  for (i = 0; i < n; i++)
     {
-      for (i = 0; i < N; i++) {
-	fprintf(stderr, DATA_PRINTF_MODIFIER, A[i]);
-	if (i % 80 == 20) fprintf(stderr, "\n");
-      }
-      fprintf(stderr, "\n");
+      fprintf(stderr, DATA_PRINTF_MODIFIER, A[i]);
+      if (i % 20 == 0) fprintf(stderr, "\n");
     }
+  fprintf(stderr, "\n");
+}
+
+
+/* Main computational kernel. The whole function will be timed,
+   including the call and return. */
+static
+void kernel_jacobi_1d_imper(int tsteps,
+			    int n,
+			    DATA_TYPE POLYBENCH_1D(A,N),
+			    DATA_TYPE POLYBENCH_1D(B,N))
+{
+  int t, i, j;
+
+#pragma scop
+  for (t = 0; t < tsteps; t++)
+    {
+      for (i = 1; i < n - 1; i++)
+	B[i] = 0.33333 * (A[i-1] + A[i] + A[i + 1]);
+      for (j = 1; j < n - 1; j++)
+	A[j] = B[j];
+    }
+#pragma endscop
+
 }
 
 
 int main(int argc, char** argv)
 {
-  int t, i, j;
-  int tsteps = TSTEPS;
+  /* Retrieve problem size. */
   int n = N;
+  int tsteps = TSTEPS;
 
-  /* Initialize array. */
-  init_array();
+  /* Variable declaration/allocation. */
+#ifdef POLYBENCH_HEAP_ARRAYS
+  /* Heap arrays use variable 'n' for the size. */
+  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(A, n);
+  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(B, n);
+  A = POLYBENCH_ALLOC_1D_ARRAY(n, DATA_TYPE);
+  B = POLYBENCH_ALLOC_1D_ARRAY(n, DATA_TYPE);
+#else
+  /* Stack arrays use the numerical value 'N' for the size. */
+  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(A, N);
+  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(B, N);
+#endif
+
+
+  /* Initialize array(s). */
+  init_array (n, POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(B));
 
   /* Start timer. */
   polybench_start_instruments;
 
-#pragma scop
-#pragma live-out A
-
-  for (t = 0; t < tsteps; t++)
-    {
-      for (i = 2; i < n - 1; i++)
-	B[i] = 0.33333 * (A[i-1] + A[i] + A[i + 1]);
-
-      for (j = 2; j < n - 1; j++)
-	A[j] = B[j];
-    }
-
-#pragma endscop
+  /* Run kernel. */
+  kernel_jacobi_1d_imper (tsteps, n, POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(B));
 
   /* Stop and print timer. */
   polybench_stop_instruments;
   polybench_print_instruments;
 
-  print_array(argc, argv);
+  /* Prevent dead-code elimination. All live-out data must be printed
+     by the function call in argument. */
+  polybench_prevent_dce(print_array(n, POLYBENCH_ARRAY(A)));
+
+  /* Be clean. */
+  POLYBENCH_FREE_ARRAY(A);
+  POLYBENCH_FREE_ARRAY(B);
 
   return 0;
 }

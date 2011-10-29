@@ -1,112 +1,88 @@
+/**
+ * correlation.c: This file is part of the PolyBench 3.0 test suite.
+ *
+ *
+ * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
+ * Web address: http://polybench.sourceforge.net
+ */
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 #include <math.h>
 
-#include "instrument.h"
+/* Include polybench common header. */
+#include <polybench.h>
+
+/* Include benchmark-specific header. */
+/* Default data type is double, default size is 4000. */
+#include "correlation.h"
 
 
-/* Default problem size. */
-#ifndef M
-# define M 500
-#endif
-#ifndef N
-# define N 500
-#endif
-
-/* Default data type is double. */
-#ifndef DATA_TYPE
-# define DATA_TYPE double
-#endif
-#ifndef DATA_PRINTF_MODIFIER
-# define DATA_PRINTF_MODIFIER "%0.2lf "
-#endif
-
-/* Array declaration. Enable malloc if POLYBENCH_TEST_MALLOC. */
-DATA_TYPE float_n = 321414134.01;
-DATA_TYPE eps = 0.005;
-#ifndef POLYBENCH_TEST_MALLOC
-DATA_TYPE data[M + 1][N + 1];
-DATA_TYPE symmat[M + 1][M + 1];
-DATA_TYPE stddev[M + 1];
-DATA_TYPE mean[M + 1];
-#else
-DATA_TYPE** data = (DATA_TYPE**)malloc((M + 1) * sizeof(DATA_TYPE*));
-DATA_TYPE** symmat = (DATA_TYPE**)malloc((M + 1) * sizeof(DATA_TYPE*));
-DATA_TYPE* stddev = (DATA_TYPE*)malloc((M + 1) * sizeof(DATA_TYPE));
-DATA_TYPE* mean = (DATA_TYPE*)malloc((M + 1) * sizeof(DATA_TYPE));
-{
-  int i;
-  for (i = 0; i <= M; ++i)
-    {
-      data[i] = (DATA_TYPE*)malloc((N + 1) * sizeof(DATA_TYPE));
-      symmat[i] = (DATA_TYPE*)malloc((M + 1) * sizeof(DATA_TYPE));
-    }
-}
-#endif
-
-static inline
-void init_array()
+/* Array initialization. */
+static
+void init_array (int n,
+		 DATA_TYPE *float_n,
+		 DATA_TYPE POLYBENCH_2D(data,M,N))
 {
   int i, j;
 
-  for (i = 0; i <= M; i++)
-    for (j = 0; j <= N; j++)
-      data[i][j] = ((DATA_TYPE) i*j) / (M+1);
+  *float_n = 1.2;
+
+  for (i = 0; i < M; i++)
+    for (j = 0; j < N; j++)
+      data[i][j] = ((DATA_TYPE) i*j) / M;
 }
 
-/* Define the live-out variables. Code is not executed unless
-   POLYBENCH_DUMP_ARRAYS is defined. */
-static inline
-void print_array(int argc, char** argv)
+
+/* DCE code. Must scan the entire live-out data.
+   Can be used also to check the correctness of the output. */
+static
+void print_array(int n,
+		 DATA_TYPE POLYBENCH_2D(symmat,M,M))
+
 {
   int i, j;
-#ifndef POLYBENCH_DUMP_ARRAYS
-  if (argc > 42 && ! strcmp(argv[0], ""))
-#endif
-    {
-      for (i = 0; i <= M; i++)
-	for (j = 0; j <= M; j++) {
-	  fprintf(stderr, DATA_PRINTF_MODIFIER, symmat[i][j]);
-	  if ((i * M + j) % 80 == 20) fprintf(stderr, "\n");
-	}
-      fprintf(stderr, "\n");
+
+  for (i = 0; i < n; i++)
+    for (j = 0; j < n; j++) {
+      fprintf (stderr, DATA_PRINTF_MODIFIER, symmat[i][j]);
+      if ((i * n + j) % 20 == 0) fprintf (stderr, "\n");
     }
+  fprintf (stderr, "\n");
 }
 
 
-int main(int argc, char** argv)
+/* Main computational kernel. The whole function will be timed,
+   including the call and return. */
+static
+void kernel_correlation(int m, int n,
+			DATA_TYPE float_n,
+			DATA_TYPE POLYBENCH_2D(data,M,N),
+			DATA_TYPE POLYBENCH_2D(symmat,M,M),
+			DATA_TYPE POLYBENCH_1D(mean,M),
+			DATA_TYPE POLYBENCH_1D(stddev,M))
 {
   int i, j, j1, j2;
-  int m = M;
-  int n = N;
 
-  /* Initialize array. */
-  init_array();
-
-  /* Start timer. */
-  polybench_start_instruments;
-
+  DATA_TYPE eps = 0.1f;
 
 #define sqrt_of_array_cell(x,j) sqrt(x[j])
 
 #pragma scop
-#pragma live-out symmat
-
   /* Determine mean of column vectors of input data matrix */
-  for (j = 1; j <= m; j++)
+  for (j = 0; j < m; j++)
     {
       mean[j] = 0.0;
-      for (i = 1; i <= n; i++)
+      for (i = 0; i < n; i++)
 	mean[j] += data[i][j];
       mean[j] /= float_n;
     }
 
-/* Determine standard deviations of column vectors of data matrix. */
-  for (j = 1; j <= m; j++)
+  /* Determine standard deviations of column vectors of data matrix. */
+  for (j = 0; j < m; j++)
     {
       stddev[j] = 0.0;
-      for (i = 1; i <= n; i++)
+      for (i = 0; i < n; i++)
 	stddev[j] += (data[i][j] - mean[j]) * (data[i][j] - mean[j]);
       stddev[j] /= float_n;
       stddev[j] = sqrt_of_array_cell(stddev, j);
@@ -116,35 +92,85 @@ int main(int argc, char** argv)
       stddev[j] = stddev[j] <= eps ? 1.0 : stddev[j];
     }
 
- /* Center and reduce the column vectors. */
-  for (i = 1; i <= n; i++)
-    for (j = 1; j <= m; j++)
+  /* Center and reduce the column vectors. */
+  for (i = 0; i < n; i++)
+    for (j = 0; j < m; j++)
       {
 	data[i][j] -= mean[j];
 	data[i][j] /= sqrt(float_n) * stddev[j];
       }
 
-/* Calculate the m * m correlation matrix. */
-  for (j1 = 1; j1 <= m-1; j1++)
+  /* Calculate the m * m correlation matrix. */
+  for (j1 = 0; j1 < m-1; j1++)
     {
       symmat[j1][j1] = 1.0;
-      for (j2 = j1+1; j2 <= m; j2++)
+      for (j2 = j1+1; j2 < m; j2++)
 	{
 	  symmat[j1][j2] = 0.0;
-	  for (i = 1; i <= n; i++)
+	  for (i = 0; i < n; i++)
 	    symmat[j1][j2] += (data[i][j1] * data[i][j2]);
 	  symmat[j2][j1] = symmat[j1][j2];
 	}
     }
- symmat[m][m] = 1.0;
-
+  symmat[m][m] = 1.0;
 #pragma endscop
+
+}
+
+
+int main(int argc, char** argv)
+{
+  /* Retrieve problem size. */
+  int n = N;
+  int m = M;
+
+  /* Variable declaration/allocation. */
+  DATA_TYPE float_n;
+#ifdef POLYBENCH_HEAP_ARRAYS
+  /* Heap arrays use variable 'n' for the size. */
+  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(data, m, n);
+  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(symmat, m, m);
+  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(mean, m);
+  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(stddev, m);
+  data = POLYBENCH_ALLOC_2D_ARRAY(m, n, DATA_TYPE);
+  symmat = POLYBENCH_ALLOC_2D_ARRAY(m, m, DATA_TYPE);
+  mean = POLYBENCH_ALLOC_1D_ARRAY(m, DATA_TYPE);
+  stddev = POLYBENCH_ALLOC_1D_ARRAY(m, DATA_TYPE);
+#else
+  /* Stack arrays use the numerical value 'N' for the size. */
+  DATA_TYPE POLYBENCH_2D(data,M,N);
+  DATA_TYPE POLYBENCH_2D(symmat,M,M);
+  DATA_TYPE POLYBENCH_1D(mean,M);
+  DATA_TYPE POLYBENCH_1D(stddev,M);
+#endif
+
+
+  /* Initialize array(s). */
+  init_array (n, &float_n, POLYBENCH_ARRAY(data));
+
+  /* Start timer. */
+  polybench_start_instruments;
+
+  /* Run kernel. */
+  kernel_correlation (m, n, float_n,
+		      POLYBENCH_ARRAY(data),
+		      POLYBENCH_ARRAY(symmat),
+		      POLYBENCH_ARRAY(mean),
+		      POLYBENCH_ARRAY(stddev));
 
   /* Stop and print timer. */
   polybench_stop_instruments;
   polybench_print_instruments;
 
-  print_array(argc, argv);
+  /* Prevent dead-code elimination. All live-out data must be printed
+     by the function call in argument. */
+  polybench_prevent_dce(print_array(m, POLYBENCH_ARRAY(symmat)));
+
+  /* Be clean. */
+  POLYBENCH_FREE_ARRAY(data);
+  POLYBENCH_FREE_ARRAY(symmat);
+  POLYBENCH_FREE_ARRAY(mean);
+  POLYBENCH_FREE_ARRAY(stddev);
 
   return 0;
 }

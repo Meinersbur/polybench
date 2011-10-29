@@ -1,105 +1,127 @@
+/**
+ * cholesky.c: This file is part of the PolyBench 3.0 test suite.
+ *
+ *
+ * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
+ * Web address: http://polybench.sourceforge.net
+ */
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 #include <math.h>
 
-#include "instrument.h"
+/* Include polybench common header. */
+#include <polybench.h>
 
-#ifndef N
-# define N 1024
-#endif
+/* Include benchmark-specific header. */
+/* Default data type is double, default size is 4000. */
+#include "cholesky.h"
 
-/* Default data type is double. */
-#ifndef DATA_TYPE
-# define DATA_TYPE double
-#endif
 
-/* Array declaration. Enable malloc if POLYBENCH_TEST_MALLOC. */
-DATA_TYPE x;
-#ifndef POLYBENCH_TEST_MALLOC
-DATA_TYPE a[N][N];
-DATA_TYPE p[N];
-#else
-DATA_TYPE** a = (DATA_TYPE**) malloc((N) * sizeof(DATA_TYPE*));
-DATA_TYPE* p = (DATA_TYPE*) malloc ((N) * sizeof(DATA_TYPE));
+/* Array initialization. */
+static
+void init_array(int n,
+		DATA_TYPE POLYBENCH_1D(p,N),
+		DATA_TYPE POLYBENCH_2D(A,N,N))
 {
-  int i;
-  for (i = 0; i < nx; ++i)
-    a[i] = (DATA_TYPE*)malloc(N * sizeof(DATA_TYPE));
-}
-#endif
+  int i, j;
 
-
-static inline
-void init_array()
-{
-    int i, j;
-
-    for (i = 0; i < N; i++)
-      {
-	p[i] = M_PI * i;
-        for (j = 0; j < N; j++)
-	  a[i][j] = M_PI * i + 2 * j;
-      }
+  for (i = 0; i < n; i++)
+    {
+      p[i] = 1.0 / n;
+      for (j = 0; j < n; j++)
+	A[i][j] = 1.0 / n;
+    }
 }
 
-/* Define the live-out variables. Code is not executed unless
-   POLYBENCH_DUMP_ARRAYS is defined. */
-static inline
-void print_array(int argc, char** argv)
+
+/* DCE code. Must scan the entire live-out data.
+   Can be used also to check the correctness of the output. */
+static
+void print_array(int n,
+		 DATA_TYPE POLYBENCH_2D(A,N,N))
+
 {
-    int i, j;
-#ifndef POLYBENCH_DUMP_ARRAYS
-    if (argc > 42 && ! strcmp(argv[0], ""))
-#endif
+  int i, j;
+
+  for (i = 0; i < n; i++)
+    for (i = 0; j < n; j++) {
+    fprintf (stderr, DATA_PRINTF_MODIFIER, A[i][j]);
+    if ((i * N + j) % 20 == 0) fprintf (stderr, "\n");
+  }
+}
+
+
+/* Main computational kernel. The whole function will be timed,
+   including the call and return. */
+static
+void kernel_cholesky(int n,
+		     DATA_TYPE POLYBENCH_1D(p,N),
+		     DATA_TYPE POLYBENCH_2D(A,N,N))
+{
+  int i, j, k;
+
+  DATA_TYPE x;
+
+#pragma scop
+for (i = 0; i < n; ++i)
+  {
+    x = A[i][i];
+    for (j = 0; j <= i - 1; ++j)
+      x = x - A[i][j] * A[i][j];
+    p[i] = 1.0 / sqrt(x);
+    for (j = i + 1; j < n; ++j)
       {
-	for (i = 0; i < N; i++) {
-	  for (j = 0; j < N; j++) {
-	    fprintf(stderr, "%0.2lf ", a[i][j]);
-	    if ((i * N + j) % 80 == 20) fprintf(stderr, "\n");
-	  }
-	  fprintf(stderr, "\n");
-	}
+	x = A[i][j];
+	for (k = 0; k <= i - 1; ++k)
+	  x = x - A[j][k] * A[i][k];
+	A[j][i] = x * p[i];
       }
+  }
+#pragma endscop
+
 }
 
 
 int main(int argc, char** argv)
 {
-  int i, j, k;
+  /* Retrieve problem size. */
   int n = N;
 
-    /* Initialize array. */
-    init_array();
+  /* Variable declaration/allocation. */
+#ifdef POLYBENCH_HEAP_ARRAYS
+  /* Heap arrays use variable 'n' for the size. */
+  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A, n, n);
+  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(p, n);
+  A = POLYBENCH_ALLOC_2D_ARRAY(n, n, DATA_TYPE);
+  p = POLYBENCH_ALLOC_1D_ARRAY(n, DATA_TYPE);
+#else
+  /* Stack arrays use the numerical value 'N' for the size. */
+  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A, N, N);
+  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(p, N);
+#endif
 
-    /* Start timer. */
-    polybench_start_instruments;
 
-#pragma scop
-#pragma live-out a
+  /* Initialize array(s). */
+  init_array (n, POLYBENCH_ARRAY(p), POLYBENCH_ARRAY(A));
 
-for (i = 0; i < n; ++i)
-  {
-    x = a[i][i];
-    for (j = 0; j <= i - 1; ++j)
-      x = x - a[i][j] * a[i][j];
-    p[i] = 1.0 / sqrt (x);
-    for (j = i + 1; j < n; ++j)
-      {
-	x = a[i][j];
-	for (k = 0; k <= i - 1; ++k)
-	  x = x - a[j][k] * a[i][k];
-	a[j][i] = x * p[i];
-      }
-  }
+  /* Start timer. */
+  polybench_start_instruments;
 
-#pragma endscop
+  /* Run kernel. */
+  kernel_cholesky (n, POLYBENCH_ARRAY(p), POLYBENCH_ARRAY(A));
 
-    /* Stop and print timer. */
-    polybench_stop_instruments;
-    polybench_print_instruments;
+  /* Stop and print timer. */
+  polybench_stop_instruments;
+  polybench_print_instruments;
 
-    print_array(argc, argv);
+  /* Prevent dead-code elimination. All live-out data must be printed
+     by the function call in argument. */
+  polybench_prevent_dce(print_array(n, POLYBENCH_ARRAY(A)));
 
-    return 0;
+  /* Be clean. */
+  POLYBENCH_FREE_ARRAY(A);
+  POLYBENCH_FREE_ARRAY(p);
+
+  return 0;
 }

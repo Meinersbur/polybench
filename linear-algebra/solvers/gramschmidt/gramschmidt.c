@@ -1,118 +1,158 @@
+/**
+ * gramschmidt.c: This file is part of the PolyBench 3.0 test suite.
+ *
+ *
+ * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
+ * Web address: http://polybench.sourceforge.net
+ */
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 #include <math.h>
 
-#include "instrument.h"
+/* Include polybench common header. */
+#include <polybench.h>
+
+/* Include benchmark-specific header. */
+/* Default data type is double, default size is 512. */
+#include "gramschmidt.h"
 
 
-/* Default problem size. */
-#ifndef M
-# define M 512
-#endif
-#ifndef N
-# define N 512
-#endif
-
-/* Default data type is double. */
-#ifndef DATA_TYPE
-# define DATA_TYPE double
-#endif
-#ifndef DATA_PRINTF_MODIFIER
-# define DATA_PRINTF_MODIFIER "%0.2lf "
-#endif
-
-/* Array declaration. Enable malloc if POLYBENCH_TEST_MALLOC. */
-DATA_TYPE nrm;
-#ifndef POLYBENCH_TEST_MALLOC
-DATA_TYPE A[M][N];
-DATA_TYPE R[M][N];
-DATA_TYPE Q[M][N];
-#else
-DATA_TYPE** A = (DATA_TYPE**)malloc(M * sizeof(DATA_TYPE*));
-DATA_TYPE** R = (DATA_TYPE**)malloc(M * sizeof(DATA_TYPE*));
-DATA_TYPE** Q = (DATA_TYPE**)malloc(M * sizeof(DATA_TYPE*));
+/* Array initialization. */
+static
+void init_array(int ni, int nj,
+		DATA_TYPE POLYBENCH_2D(A,NI,NJ),
+		DATA_TYPE POLYBENCH_2D(R,NJ,NJ),
+		DATA_TYPE POLYBENCH_2D(Q,NI,NJ))
 {
-  int i;
-  for (i = 0; i < M; ++i)
-    {
-      A[i] = (DATA_TYPE*)malloc(N * sizeof(DATA_TYPE));
-      R[i] = (DATA_TYPE*)malloc(N * sizeof(DATA_TYPE));
-      Q[i] = (DATA_TYPE*)malloc(N * sizeof(DATA_TYPE));
+  int i, j;
+
+  for (i = 0; i < ni; i++)
+    for (j = 0; j < nj; j++) {
+      A[i][j] = ((DATA_TYPE) i*j) / ni;
+      Q[i][j] = ((DATA_TYPE) i*(j+1)) / nj;
     }
+  for (i = 0; i < nj; i++)
+    for (j = 0; j < nj; j++)
+      R[i][j] = ((DATA_TYPE) i*(j+2)) / nj;
 }
-#endif
 
-static inline
-void init_array()
+
+/* DCE code. Must scan the entire live-out data.
+   Can be used also to check the correctness of the output. */
+static
+void print_array(int ni, int nj,
+		 DATA_TYPE POLYBENCH_2D(A,NI,NJ),
+		 DATA_TYPE POLYBENCH_2D(R,NJ,NJ),
+		 DATA_TYPE POLYBENCH_2D(Q,NI,NJ))
 {
   int i, j;
 
-  for (i = 0; i < M; i++)
-    for (j = 0; j < N; j++)
-      A[i][j] = ((DATA_TYPE) (i+1)*(j+1)) / M;
+  for (i = 0; i < ni; i++)
+    for (j = 0; j < nj; j++) {
+	fprintf (stderr, DATA_PRINTF_MODIFIER, A[i][j]);
+	if (i % 20 == 0) fprintf (stderr, "\n");
+    }
+  fprintf (stderr, "\n");
+  for (i = 0; i < nj; i++)
+    for (j = 0; j < nj; j++) {
+	fprintf (stderr, DATA_PRINTF_MODIFIER, R[i][j]);
+	if (i % 20 == 0) fprintf (stderr, "\n");
+    }
+  fprintf (stderr, "\n");
+  for (i = 0; i < ni; i++)
+    for (j = 0; j < nj; j++) {
+	fprintf (stderr, DATA_PRINTF_MODIFIER, Q[i][j]);
+	if (i % 20 == 0) fprintf (stderr, "\n");
+    }
+  fprintf (stderr, "\n");
 }
 
-/* Define the live-out variables. Code is not executed unless
-   POLYBENCH_DUMP_ARRAYS is defined. */
-static inline
-void print_array(int argc, char** argv)
+
+/* Main computational kernel. The whole function will be timed,
+   including the call and return. */
+static
+void kernel_gramschmidt(int ni, int nj,
+			DATA_TYPE POLYBENCH_2D(A,NI,NJ),
+			DATA_TYPE POLYBENCH_2D(R,NJ,NJ),
+			DATA_TYPE POLYBENCH_2D(Q,NI,NJ))
 {
-  int i, j;
-#ifndef POLYBENCH_DUMP_ARRAYS
-  if (argc > 42 && ! strcmp(argv[0], ""))
-#endif
+  int i, j, k;
+
+  DATA_TYPE nrm;
+
+#pragma scop
+  for (k = 0; k < nj; k++)
     {
-      for (i = 0; i < M; i++)
-	for (j = 0; j < N; j++) {
-	  fprintf(stderr, DATA_PRINTF_MODIFIER, A[i][j]);
-	  if ((i * M + j) % 80 == 20) fprintf(stderr, "\n");
+      nrm = 0;
+      for (i = 0; i < ni; i++)
+        nrm += A[i][k] * A[i][k];
+      R[k][k] = sqrt(nrm);
+      for (i = 0; i < ni; i++)
+        Q[i][k] = A[i][k] / R[k][k];
+      for (j = k + 1; j < nj; j++)
+	{
+	  R[k][j] = 0;
+	  for (i = 0; i < ni; i++)
+	    R[k][j] += Q[i][k] * A[i][j];
+	  for (i = 0; i < ni; i++)
+	    A[i][j] = A[i][j] - Q[i][k] * R[k][j];
 	}
-      fprintf(stderr, "\n");
     }
+#pragma endscop
+
 }
 
 
 int main(int argc, char** argv)
 {
-  int i, j, k;
-  int m = M;
-  int n = N;
+  /* Retrieve problem size. */
+  int ni = NI;
+  int nj = NJ;
 
-  /* Initialize array. */
-  init_array();
+  /* Variable declaration/allocation. */
+#ifdef POLYBENCH_HEAP_ARRAYS
+  /* Heap arrays use variable 'n' for the size. */
+  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A, ni, ni);
+  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(R, nj, nj);
+  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(Q, ni, nj);
+  A = POLYBENCH_ALLOC_2D_ARRAY(ni, nj, DATA_TYPE);
+  R = POLYBENCH_ALLOC_2D_ARRAY(nj, nj, DATA_TYPE);
+  Q = POLYBENCH_ALLOC_2D_ARRAY(ni, nj, DATA_TYPE);
+#else
+  /* Stack arrays use the numerical value 'N' for the size. */
+  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A,NI,NJ);
+  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(R,NJ,NJ);
+  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(Q,NI,NJ);
+#endif
+
+  /* Initialize array(s). */
+  init_array (ni, nj,
+	      POLYBENCH_ARRAY(A),
+	      POLYBENCH_ARRAY(R),
+	      POLYBENCH_ARRAY(Q));
 
   /* Start timer. */
   polybench_start_instruments;
 
-#pragma scop
-#pragma live-out A
-
-  for (k = 0; k < n; k++)
-    {
-      nrm = 0;
-      for (i = 0; i < m; i++)
-        nrm += A[i][k] * A[i][k];
-      R[k][k] = sqrt(nrm);
-      for (i = 0; i < m; i++)
-        Q[i][k] = A[i][k] / R[k][k];
-      for (j = k + 1; j < n; j++)
-	{
-	  R[k][j] = 0;
-	  for (i = 0; i < m; i++)
-	    R[k][j] += Q[i][k] * A[i][j];
-	  for (i = 0; i < m; i++)
-	    A[i][j] = A[i][j] - Q[i][k] * R[k][j];
-	}
-    }
-
-#pragma endscop
+  /* Run kernel. */
+  kernel_gramschmidt (ni, nj,
+		      POLYBENCH_ARRAY(A),
+		      POLYBENCH_ARRAY(R),
+		      POLYBENCH_ARRAY(Q));
 
   /* Stop and print timer. */
   polybench_stop_instruments;
   polybench_print_instruments;
 
-  print_array(argc, argv);
+  /* Prevent dead-code elimination. All live-out data must be printed
+     by the function call in argument. */
+  polybench_prevent_dce(print_array(ni, nj, POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(R), POLYBENCH_ARRAY(Q)));
+
+  /* Be clean. */
+  POLYBENCH_FREE_ARRAY(A);
+  POLYBENCH_FREE_ARRAY(R);
+  POLYBENCH_FREE_ARRAY(Q);
 
   return 0;
 }

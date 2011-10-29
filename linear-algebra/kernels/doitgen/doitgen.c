@@ -1,105 +1,70 @@
+/**
+ * doitgen.c: This file is part of the PolyBench 3.0 test suite.
+ *
+ *
+ * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
+ * Web address: http://polybench.sourceforge.net
+ */
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 #include <math.h>
 
-#include "instrument.h"
+/* Include polybench common header. */
+#include <polybench.h>
+
+/* Include benchmark-specific header. */
+/* Default data type is double, default size is 4000. */
+#include "doitgen.h"
 
 
-/* Default problem size. */
-#ifndef NR
-# define NR 128
-#endif
-#ifndef NQ
-# define NQ 128
-#endif
-#ifndef NP
-# define NP 128
-#endif
-
-/* Default data type is double. */
-#ifndef DATA_TYPE
-# define DATA_TYPE double
-#endif
-
-/* Array declaration. Enable malloc if POLYBENCH_TEST_MALLOC. */
-#ifndef POLYBENCH_TEST_MALLOC
-DATA_TYPE A[NR][NQ][NP];
-DATA_TYPE sum[NR][NQ][NP];
-DATA_TYPE C4[NP][NP];
-#else
-DATA_TYPE*** A = (DATA_TYPE***)malloc(NR * sizeof(DATA_TYPE**));
-DATA_TYPE*** sum = (DATA_TYPE***)malloc(NR * sizeof(DATA_TYPE**));
-DATA_TYPE** C4 = (DATA_TYPE**)malloc(NP * sizeof(DATA_TYPE*));
-{
-  int i, j;
-  for (i = 0; i < NR; ++i)
-    {
-      A[i] = (DATA_TYPE**)malloc(NQ * sizeof(DATA_TYPE*));
-      sum[i] = (DATA_TYPE**)malloc(NQ * sizeof(DATA_TYPE*));
-      for (i = 0; i < NP; ++i)
-	{
-	  A[i][j] = (DATA_TYPE*)malloc(NP * sizeof(DATA_TYPE));
-	  sum[i][j] = (DATA_TYPE*)malloc(NP * sizeof(DATA_TYPE));
-	}
-    }
-  for (i = 0; i < NP; ++i)
-    C4[i] = (DATA_TYPE*)malloc(NP * sizeof(DATA_TYPE));
-}
-#endif
-
-static inline
-void init_array()
+/* Array initialization. */
+static
+void init_array(int nr, int nq, int np,
+		DATA_TYPE POLYBENCH_3D(A,NR,NQ,NP),
+		DATA_TYPE POLYBENCH_2D(C4,NP,NP))
 {
   int i, j, k;
 
-  for (i = 0; i < NR; i++)
-    for (j = 0; j < NQ; j++)
-      for (k = 0; k < NP; k++)
-	A[i][j][k] = ((DATA_TYPE) i*j + k) / NP;
-  for (i = 0; i < NP; i++)
-    for (j = 0; j < NP; j++)
-      C4[i][j] = ((DATA_TYPE) i*j) / NP;
+  for (i = 0; i < nr; i++)
+    for (j = 0; j < nq; j++)
+      for (k = 0; k < np; k++)
+	A[i][j][k] = ((DATA_TYPE) i*j + k) / np;
+  for (i = 0; i < np; i++)
+    for (j = 0; j < np; j++)
+      C4[i][j] = ((DATA_TYPE) i*j) / np;
 }
 
 
-/* Define the live-out variables. Code is not executed unless
-   POLYBENCH_DUMP_ARRAYS is defined. */
-static inline
-void print_array(int argc, char** argv)
+/* DCE code. Must scan the entire live-out data.
+   Can be used also to check the correctness of the output. */
+static
+void print_array(int nr, int nq, int np,
+		 DATA_TYPE POLYBENCH_3D(A,NR,NP,NQ))
 {
   int i, j, k;
-#ifndef POLYBENCH_DUMP_ARRAYS
-  if (argc > 42 && ! strcmp(argv[0], ""))
-#endif
-    {
-      for (i = 0; i < NR; i++)
-	for (j = 0; j < NQ; j++)
-	  for (k = 0; k < NP; k++) {
-	    fprintf(stderr, "%0.2lf ", A[i][j][k]);
-	    if ((i * NR + j * NQ + k)% 80 == 20) fprintf(stderr, "\n");
-	  }
-      fprintf(stderr, "\n");
-    }
+
+  for (i = 0; i < nr; i++)
+    for (j = 0; j < nq; j++)
+      for (k = 0; k < np; k++) {
+	fprintf (stderr, DATA_PRINTF_MODIFIER, A[i][j][k]);
+	if (i % 20 == 0) fprintf (stderr, "\n");
+      }
+  fprintf (stderr, "\n");
 }
 
 
-int main(int argc, char** argv)
+/* Main computational kernel. The whole function will be timed,
+   including the call and return. */
+static
+void kernel_doitgen(int nr, int nq, int np,
+		    DATA_TYPE POLYBENCH_3D(A,NR,NQ,NP),
+		    DATA_TYPE POLYBENCH_2D(C4,NP,NP),
+		    DATA_TYPE POLYBENCH_3D(sum,NR,NQ,NP))
 {
   int r, q, p, s;
-  int nr = NR;
-  int nq = NQ;
-  int np = NP;
-
-  /* Initialize array. */
-  init_array();
-
-  /* Start timer. */
-  polybench_start_instruments;
 
 #pragma scop
-#pragma live-out A
-
   for (r = 0; r < nr; r++)
     for (q = 0; q < nq; q++)  {
       for (p = 0; p < np; p++)  {
@@ -110,15 +75,60 @@ int main(int argc, char** argv)
       for (p = 0; p < np; p++)
 	A[r][q][p] = sum[r][q][p];
     }
-
-
 #pragma endscop
+
+}
+
+
+int main(int argc, char** argv)
+{
+  /* Retrieve problem size. */
+  int nr = NR;
+  int nq = NQ;
+  int np = NP;
+
+  /* Variable declaration/allocation. */
+#ifdef POLYBENCH_HEAP_ARRAYS
+  /* Heap arrays use variable 'n' for the size. */
+  DATA_TYPE POLYBENCH_3D_ARRAY_DECL(A, nr, nq, np);
+  DATA_TYPE POLYBENCH_3D_ARRAY_DECL(sum, nr, nq, np);
+  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(C4, np, np);
+  A = POLYBENCH_ALLOC_3D_ARRAY(nr, nq, np, DATA_TYPE);
+  sum = POLYBENCH_ALLOC_3D_ARRAY(nr, nq, np, DATA_TYPE);
+  C4 = POLYBENCH_ALLOC_2D_ARRAY(np, np, DATA_TYPE);
+#else
+  /* Stack arrays use the numerical value 'N' for the size. */
+  DATA_TYPE POLYBENCH_3D_ARRAY_DECL(A,NR,NQ,NP);
+  DATA_TYPE POLYBENCH_3D_ARRAY_DECL(sum,NR,NQ,NP);
+  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(C4,NP,NP);
+#endif
+
+  /* Initialize array(s). */
+  init_array (nr, nq, np,
+	      POLYBENCH_ARRAY(A),
+	      POLYBENCH_ARRAY(C4));
+
+  /* Start timer. */
+  polybench_start_instruments;
+
+  /* Run kernel. */
+  kernel_doitgen (nr, nq, np,
+		  POLYBENCH_ARRAY(A),
+		  POLYBENCH_ARRAY(C4),
+		  POLYBENCH_ARRAY(sum));
 
   /* Stop and print timer. */
   polybench_stop_instruments;
   polybench_print_instruments;
 
-  print_array(argc, argv);
+  /* Prevent dead-code elimination. All live-out data must be printed
+     by the function call in argument. */
+  polybench_prevent_dce(print_array(nr, nq, np,  POLYBENCH_ARRAY(A)));
+
+  /* Be clean. */
+  POLYBENCH_FREE_ARRAY(A);
+  POLYBENCH_FREE_ARRAY(sum);
+  POLYBENCH_FREE_ARRAY(C4);
 
   return 0;
 }

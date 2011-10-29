@@ -1,105 +1,149 @@
+/**
+ * mvt.c: This file is part of the PolyBench 3.0 test suite.
+ *
+ *
+ * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
+ * Web address: http://polybench.sourceforge.net
+ */
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 #include <math.h>
 
-#include "instrument.h"
+/* Include polybench common header. */
+#include <polybench.h>
+
+/* Include benchmark-specific header. */
+/* Default data type is double, default size is 4000. */
+#include "mvt.h"
 
 
-/* Default problem size. */
-#ifndef N
-# define N 4000
-#endif
-
-/* Default data type is double. */
-#ifndef DATA_TYPE
-# define DATA_TYPE double
-#endif
-
-/* Array declaration. Enable malloc if POLYBENCH_TEST_MALLOC. */
-#ifndef POLYBENCH_TEST_MALLOC
-DATA_TYPE A[N][N];
-DATA_TYPE x1[N];
-DATA_TYPE y_1[N];
-DATA_TYPE x2[N];
-DATA_TYPE y_2[N];
-#else
-DATA_TYPE** A = (DATA_TYPE**)malloc(N * sizeof(DATA_TYPE*));
-DATA_TYPE* x1 = (DATA_TYPE*)malloc(N * sizeof(DATA_TYPE));
-DATA_TYPE* y_1 = (DATA_TYPE*)malloc(N * sizeof(DATA_TYPE));
-DATA_TYPE* x2 = (DATA_TYPE*)malloc(N * sizeof(DATA_TYPE));
-DATA_TYPE* y_2 = (DATA_TYPE*)malloc(N * sizeof(DATA_TYPE));
-{
-  int i;
-  for (i = 0; i < N; ++i)
-    A[i] = (DATA_TYPE*)malloc(N * sizeof(DATA_TYPE));
-}
-#endif
-
-static inline
-void init_array()
+/* Array initialization. */
+static
+void init_array(int n,
+		DATA_TYPE POLYBENCH_1D(x1,N),
+		DATA_TYPE POLYBENCH_1D(x2,N),
+		DATA_TYPE POLYBENCH_1D(y_1,N),
+		DATA_TYPE POLYBENCH_1D(y_2,N),
+		DATA_TYPE POLYBENCH_2D(A,N,N))
 {
   int i, j;
 
-  for (i = 0; i < N; i++)
+  for (i = 0; i < n; i++)
     {
-      x1[i] = ((DATA_TYPE) i) / N;
-      x2[i] = ((DATA_TYPE) i + 1) / N;
-      y_1[i] = ((DATA_TYPE) i + 3) / N;
-      y_2[i] = ((DATA_TYPE) i + 4) / N;
-      for (j = 0; j < N; j++)
+      x1[i] = ((DATA_TYPE) i) / n;
+      x2[i] = ((DATA_TYPE) i + 1) / n;
+      y_1[i] = ((DATA_TYPE) i + 3) / n;
+      y_2[i] = ((DATA_TYPE) i + 4) / n;
+      for (j = 0; j < n; j++)
 	A[i][j] = ((DATA_TYPE) i*j) / N;
     }
 }
 
-/* Define the live-out variables. Code is not executed unless
-   POLYBENCH_DUMP_ARRAYS is defined. */
-static inline
-void print_array(int argc, char** argv)
+
+/* DCE code. Must scan the entire live-out data.
+   Can be used also to check the correctness of the output. */
+static
+void print_array(int n,
+		 DATA_TYPE POLYBENCH_1D(x1,N),
+		 DATA_TYPE POLYBENCH_1D(x2,N))
+
 {
-  int i, j;
-#ifndef POLYBENCH_DUMP_ARRAYS
-  if (argc > 42 && ! strcmp(argv[0], ""))
-#endif
-    {
-      for (i = 0; i < N; i++) {
-	fprintf(stderr, "%0.2lf ", x1[i]);
-	fprintf(stderr, "%0.2lf ", x2[i]);
-	if ((2 * i) % 80 == 20) fprintf(stderr, "\n");
-      }
-      fprintf(stderr, "\n");
-    }
+  int i;
+
+  for (i = 0; i < n; i++) {
+    fprintf (stderr, DATA_PRINTF_MODIFIER, x1[i]);
+    fprintf (stderr, DATA_PRINTF_MODIFIER, x2[i]);
+    if (i % 20 == 0) fprintf (stderr, "\n");
+  }
 }
 
 
-int main(int argc, char** argv)
+/* Main computational kernel. The whole function will be timed,
+   including the call and return. */
+static
+void kernel_mvt(int n,
+		DATA_TYPE POLYBENCH_1D(x1,N),
+		DATA_TYPE POLYBENCH_1D(x2,N),
+		DATA_TYPE POLYBENCH_1D(y_1,N),
+		DATA_TYPE POLYBENCH_1D(y_2,N),
+		DATA_TYPE POLYBENCH_2D(A,N,N))
 {
   int i, j;
-  int n = N;
-
-  /* Initialize array. */
-  init_array();
-
-  /* Start timer. */
-  polybench_start_instruments;
 
 #pragma scop
-#pragma live-out x1, x2
-
   for (i = 0; i < n; i++)
     for (j = 0; j < n; j++)
       x1[i] = x1[i] + A[i][j] * y_1[j];
   for (i = 0; i < n; i++)
     for (j = 0; j < n; j++)
       x2[i] = x2[i] + A[j][i] * y_2[j];
-
 #pragma endscop
+
+}
+
+
+int main(int argc, char** argv)
+{
+  /* Retrieve problem size. */
+  int n = N;
+
+  /* Variable declaration/allocation. */
+#ifdef POLYBENCH_HEAP_ARRAYS
+  /* Heap arrays use variable 'n' for the size. */
+  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A, n, n);
+  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(x1, n);
+  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(x2, n);
+  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(y_1, n);
+  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(y_2, n);
+  A = POLYBENCH_ALLOC_2D_ARRAY(n, n, DATA_TYPE);
+  x1 = POLYBENCH_ALLOC_1D_ARRAY(n, DATA_TYPE);
+  x2 = POLYBENCH_ALLOC_1D_ARRAY(n, DATA_TYPE);
+  y_1 = POLYBENCH_ALLOC_1D_ARRAY(n, DATA_TYPE);
+  y_2 = POLYBENCH_ALLOC_1D_ARRAY(n, DATA_TYPE);
+#else
+  /* Stack arrays use the numerical value 'N' for the size. */
+  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A, N, N);
+  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(x1, N);
+  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(x2, N);
+  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(y_1, N);
+  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(y_2, N);
+#endif
+
+
+  /* Initialize array(s). */
+  init_array (n,
+	      POLYBENCH_ARRAY(x1),
+	      POLYBENCH_ARRAY(x2),
+	      POLYBENCH_ARRAY(y_1),
+	      POLYBENCH_ARRAY(y_2),
+	      POLYBENCH_ARRAY(A));
+
+  /* Start timer. */
+  polybench_start_instruments;
+
+  /* Run kernel. */
+  kernel_mvt (n,
+	      POLYBENCH_ARRAY(x1),
+	      POLYBENCH_ARRAY(x2),
+	      POLYBENCH_ARRAY(y_1),
+	      POLYBENCH_ARRAY(y_2),
+	      POLYBENCH_ARRAY(A));
 
   /* Stop and print timer. */
   polybench_stop_instruments;
   polybench_print_instruments;
 
-  print_array(argc, argv);
+  /* Prevent dead-code elimination. All live-out data must be printed
+     by the function call in argument. */
+  polybench_prevent_dce(print_array(n, POLYBENCH_ARRAY(x1), POLYBENCH_ARRAY(x2)));
+
+  /* Be clean. */
+  POLYBENCH_FREE_ARRAY(A);
+  POLYBENCH_FREE_ARRAY(x1);
+  POLYBENCH_FREE_ARRAY(x2);
+  POLYBENCH_FREE_ARRAY(y_1);
+  POLYBENCH_FREE_ARRAY(y_2);
 
   return 0;
 }

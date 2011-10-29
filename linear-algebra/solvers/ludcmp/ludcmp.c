@@ -1,106 +1,91 @@
+/**
+ * ludcmp.c: This file is part of the PolyBench 3.0 test suite.
+ *
+ *
+ * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
+ * Web address: http://polybench.sourceforge.net
+ */
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 #include <math.h>
 
-#include "instrument.h"
+/* Include polybench common header. */
+#include <polybench.h>
+
+/* Include benchmark-specific header. */
+/* Default data type is double, default size is 1024. */
+#include "ludcmp.h"
 
 
-/* Default problem size. */
-#ifndef N
-# define N 1024
-#endif
+/* Array initialization. */
+static
+void init_array (int n,
+		 DATA_TYPE POLYBENCH_2D(A,N+1,N+1),
+		 DATA_TYPE POLYBENCH_1D(b,N+1),
+		 DATA_TYPE POLYBENCH_1D(x,N+1),
+		 DATA_TYPE POLYBENCH_1D(y,N+1))
+{
+  int i, j;
 
-/* Default data type is double. */
-#ifndef DATA_TYPE
-# define DATA_TYPE double
-#endif
-#ifndef DATA_PRINTF_MODIFIER
-# define DATA_PRINTF_MODIFIER "%0.2lf "
-#endif
+  for (i = 0; i <= n; i++)
+    {
+      x[i] = i + 1;
+      y[i] = (i+1)/n/2.0 + 1;
+      b[i] = (i+1)/n/2.0 + 42;
+      for (j = 0; j <= n; j++) {
+	A[i][j] = ((DATA_TYPE) (i+1)*(j+1)) / n;
+      }
+    }
+}
 
-/* Array declaration. Enable malloc if POLYBENCH_TEST_MALLOC. */
-DATA_TYPE w;
-#ifndef POLYBENCH_TEST_MALLOC
-DATA_TYPE a[N+1][N+1];
-DATA_TYPE x[N+1];
-DATA_TYPE y[N+1];
-DATA_TYPE b[N+1];
-#else
-DATA_TYPE** a = (DATA_TYPE**)malloc((N + 1) * sizeof(DATA_TYPE*));
-DATA_TYPE* x = (DATA_TYPE*)malloc((N + 1) * sizeof(DATA_TYPE));
-DATA_TYPE* y = (DATA_TYPE*)malloc((N + 1) * sizeof(DATA_TYPE));
-DATA_TYPE* b = (DATA_TYPE*)malloc((N + 1) * sizeof(DATA_TYPE));
+
+/* DCE code. Must scan the entire live-out data.
+   Can be used also to check the correctness of the output. */
+static
+void print_array(int n,
+		 DATA_TYPE POLYBENCH_1D(x,N+1))
+
 {
   int i;
-  for (i = 0; i <= N; ++i)
-    a[i] = (DATA_TYPE*)malloc((N + 1) * sizeof(DATA_TYPE));
-}
-#endif
 
-static inline
-void init_array()
-{
-  int i, j;
-
-  for (i = 0; i <= N; i++)
-    {
-      x[i] = ((DATA_TYPE) i + 1) / N;
-      b[i] = ((DATA_TYPE) i + 2) / N;
-      for (j = 0; j <= N; j++)
-	a[i][j] = ((DATA_TYPE) i*j + 1) / N;
-    }
-}
-
-/* Define the live-out variables. Code is not executed unless
-   POLYBENCH_DUMP_ARRAYS is defined. */
-static inline
-void print_array(int argc, char** argv)
-{
-  int i, j;
-#ifndef POLYBENCH_DUMP_ARRAYS
-  if (argc > 42 && ! strcmp(argv[0], ""))
-#endif
-    {
-      for (i = 0; i <= N; i++) {
-	fprintf(stderr, DATA_PRINTF_MODIFIER, x[i]);
-	if (i % 80 == 20) fprintf(stderr, "\n");
-      }
-      fprintf(stderr, "\n");
-    }
+  for (i = 0; i <= n; i++) {
+    fprintf (stderr, DATA_PRINTF_MODIFIER, x[i]);
+    if (i % 20 == 0) fprintf (stderr, "\n");
+  }
 }
 
 
-int main(int argc, char** argv)
+/* Main computational kernel. The whole function will be timed,
+   including the call and return. */
+static
+void kernel_ludcmp(int n,
+		   DATA_TYPE POLYBENCH_2D(A,N+1,N+1),
+		   DATA_TYPE POLYBENCH_1D(b,N+1),
+		   DATA_TYPE POLYBENCH_1D(x,N+1),
+		   DATA_TYPE POLYBENCH_1D(y,N+1))
 {
   int i, j, k;
-  int n = N;
 
-  /* Initialize array. */
-  init_array();
-
-  /* Start timer. */
-  polybench_start_instruments;
+  DATA_TYPE w;
 
 #pragma scop
-#pragma live-out x
-
   b[0] = 1.0;
   for (i = 0; i < n; i++)
     {
       for (j = i+1; j <= n; j++)
         {
-	  w = a[j][i];
+	  w = A[j][i];
 	  for (k = 0; k < i; k++)
-	    w = w- a[j][k] * a[k][i];
-	  a[j][i] = w / a[i][i];
+	    w = w- A[j][k] * A[k][i];
+	  A[j][i] = w / A[i][i];
         }
       for (j = i+1; j <= n; j++)
         {
-	  w = a[i+1][j];
+	  w = A[i+1][j];
 	  for (k = 0; k <= i; k++)
-	    w = w  - a[i+1][k] * a[k][j];
-	  a[i+1][j] = w;
+	    w = w  - A[i+1][k] * A[k][j];
+	  A[i+1][j] = w;
         }
     }
   y[0] = b[0];
@@ -108,25 +93,77 @@ int main(int argc, char** argv)
     {
       w = b[i];
       for (j = 0; j < i; j++)
-	w = w - a[i][j] * y[j];
+	w = w - A[i][j] * y[j];
       y[i] = w;
     }
-  x[n] = y[n] / a[n][n];
+  x[n] = y[n] / A[n][n];
   for (i = 0; i <= n - 1; i++)
     {
       w = y[n - 1 - (i)];
       for (j = n - i; j <= n; j++)
-	w = w - a[n - 1 - (i)][j] * x[j];
-      x[n - 1 - (i)] = w / a[n - 1 - (i)][n - 1-(i)];
+	w = w - A[n - 1 - i][j] * x[j];
+      x[n - 1 - i] = w / A[n - 1 - (i)][n - 1-(i)];
     }
-
 #pragma endscop
+
+}
+
+
+int main(int argc, char** argv)
+{
+  /* Retrieve problem size. */
+  int n = N;
+
+  /* Variable declaration/allocation. */
+#ifdef POLYBENCH_HEAP_ARRAYS
+  /* Heap arrays use variable 'n' for the size. */
+  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A, n+1, n+!);
+  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(b, n+1);
+  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(x, n+1);
+  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(y, n+1);
+  A = POLYBENCH_ALLOC_2D_ARRAY(n+1, n+1, DATA_TYPE);
+  b = POLYBENCH_ALLOC_1D_ARRAY(n+1, DATA_TYPE);
+  x = POLYBENCH_ALLOC_1D_ARRAY(n+1, DATA_TYPE);
+  y = POLYBENCH_ALLOC_1D_ARRAY(n+1, DATA_TYPE);
+#else
+  /* Stack arrays use the numerical value 'N' for the size. */
+  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A, N+1, N+1);
+  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(b, N+1);
+  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(x, N+1);
+  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(y, N+1);
+#endif
+
+
+  /* Initialize array(s). */
+  init_array (n,
+	      POLYBENCH_ARRAY(A),
+	      POLYBENCH_ARRAY(b),
+	      POLYBENCH_ARRAY(x),
+	      POLYBENCH_ARRAY(y));
+
+  /* Start timer. */
+  polybench_start_instruments;
+
+  /* Run kernel. */
+  kernel_ludcmp (n,
+		 POLYBENCH_ARRAY(A),
+		 POLYBENCH_ARRAY(b),
+		 POLYBENCH_ARRAY(x),
+		 POLYBENCH_ARRAY(y));
 
   /* Stop and print timer. */
   polybench_stop_instruments;
   polybench_print_instruments;
 
-  print_array(argc, argv);
+  /* Prevent dead-code elimination. All live-out data must be printed
+     by the function call in argument. */
+  polybench_prevent_dce(print_array(n, POLYBENCH_ARRAY(x)));
+
+  /* Be clean. */
+  POLYBENCH_FREE_ARRAY(A);
+  POLYBENCH_FREE_ARRAY(b);
+  POLYBENCH_FREE_ARRAY(x);
+  POLYBENCH_FREE_ARRAY(y);
 
   return 0;
 }

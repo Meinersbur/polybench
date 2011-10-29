@@ -1,92 +1,62 @@
+/**
+ * dynprog.c: This file is part of the PolyBench 3.0 test suite.
+ *
+ *
+ * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
+ * Web address: http://polybench.sourceforge.net
+ */
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 #include <math.h>
 
-#include "instrument.h"
+/* Include polybench common header. */
+#include <polybench.h>
 
-/* Default problem size. */
-#ifndef TSTEPS
-# define TSTEPS 10000
-#endif
-#ifndef LENGTH
-# define LENGTH 50
-#endif
+/* Include benchmark-specific header. */
+/* Default data type is int, default size is 50. */
+#include "dynprog.h"
 
-/* Default data type is int. */
-#ifndef DATA_TYPE
-# define DATA_TYPE int
-#endif
-#ifndef DATA_PRINTF_MODIFIER
-# define DATA_PRINTF_MODIFIER "%d "
-#endif
 
-/* Array declaration. Enable malloc if POLYBENCH_TEST_MALLOC. */
-DATA_TYPE out;
-#ifndef POLYBENCH_TEST_MALLOC
-DATA_TYPE sum_c[LENGTH][LENGTH][LENGTH];
-DATA_TYPE c[LENGTH][LENGTH];
-DATA_TYPE W[LENGTH][LENGTH]; //input
-#else
-DATA_TYPE** c = (DATA_TYPE**)malloc(LENGTH * sizeof(DATA_TYPE*));
-DATA_TYPE** w = (DATA_TYPE**)malloc(LENGTH * sizeof(DATA_TYPE*));
-DATA_TYPE*** sum_c = (DATA_TYPE***)malloc(LENGTH * sizeof(DATA_TYPE**));
+/* Array initialization. */
+static
+void init_array(int length,
+		DATA_TYPE POLYBENCH_2D(c,length,length),
+		DATA_TYPE POLYBENCH_2D(W,length,length))
 {
   int i, j;
-  for (i = 0; i < LENGTH; ++i)
-    {
-      c[i] = (DATA_TYPE*)malloc(LENGTH * sizeof(DATA_TYPE));
-      W[i] = (DATA_TYPE*)malloc(LENGTH * sizeof(DATA_TYPE));
-      sum_c[i] = (DATA_TYPE**)malloc(LENGTH * sizeof(DATA_TYPE*));
-      for (j = 0; j < LENGTH; ++j)
-	sum_c[i][j] = (DATA_TYPE*)malloc(LENGTH * sizeof(DATA_TYPE));
-    }
-}
-#endif
-
-static inline
-void init_array()
-{
-  int i, j;
-
-  for (i = 0; i < LENGTH; i++)
-    for (j = 0; j < LENGTH; j++)
-      W[i][j] = ((DATA_TYPE) i*j + 1) / LENGTH;
-}
-
-/* Define the live-out variables. Code is not executed unless
-   POLYBENCH_DUMP_ARRAYS is defined. */
-static inline
-void print_array(int argc, char** argv)
-{
-  int i, j;
-#ifndef POLYBENCH_DUMP_ARRAYS
-  if (argc > 42 && ! strcmp(argv[0], ""))
-#endif
-    {
-      fprintf(stderr, DATA_PRINTF_MODIFIER, out);
-      fprintf(stderr, "\n");
+  for (i = 0; i < length; i++)
+    for (j = 0; j < length; j++) {
+      c[i][j] = i*j % 2;
+      W[i][j] = ((DATA_TYPE) i-j) / length;
     }
 }
 
 
-int main(int argc, char** argv)
+/* DCE code. Must scan the entire live-out data.
+   Can be used also to check the correctness of the output. */
+static
+void print_array(DATA_TYPE out)
+{
+  fprintf (stderr, DATA_PRINTF_MODIFIER, out);
+  fprintf (stderr, "\n");
+}
+
+
+/* Main computational kernel. The whole function will be timed,
+   including the call and return. */
+static
+void kernel_dynprog(int tsteps, int length,
+		    DATA_TYPE POLYBENCH_2D(c,length,length),
+		    DATA_TYPE POLYBENCH_2D(W,length,length),
+		    DATA_TYPE POLYBENCH_3D(sum_c,length,length,length),
+		    DATA_TYPE *out)
 {
   int iter, i, j, k;
-  int length = LENGTH;
-  int tsteps = TSTEPS;
 
-  /* Initialize array. */
-  init_array();
-
-  /* Start timer. */
-  polybench_start_instruments;
-
+  DATA_TYPE out_l = 0;
 
 #pragma scop
-#pragma live-out out
-
-  out = 0;
   for (iter = 0; iter < tsteps; iter++)
     {
       for (i = 0; i <= length - 1; i++)
@@ -103,16 +73,62 @@ int main(int argc, char** argv)
 	      c[i][j] = sum_c[i][j][j-1] + W[i][j];
 	    }
 	}
-      out += c[0][length - 1];
+      out_l += c[0][length - 1];
     }
-
 #pragma endscop
+
+  *out = out_l;
+}
+
+
+int main(int argc, char** argv)
+{
+  /* Retrieve problem size. */
+  int length = LENGTH;
+  int tsteps = TSTEPS;
+
+  /* Variable declaration/allocation. */
+  DATA_TYPE out;
+#ifdef POLYBENCH_HEAP_ARRAYS
+  /* Heap arrays use variable 'n' for the size. */
+  DATA_TYPE POLYBENCH_3D_ARRAY_DECL(sum_c, length, length, length);
+  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(c, length, length);
+  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(W, length, length);
+  sum_c = POLYBENCH_ALLOC_3D_ARRAY(length, length, length, DATA_TYPE);
+  c = POLYBENCH_ALLOC_2D_ARRAY(length, length, DATA_TYPE);
+  W = POLYBENCH_ALLOC_2D_ARRAY(length, length, DATA_TYPE);
+#else
+  /* Stack arrays use the numerical value 'N' for the size. */
+  DATA_TYPE POLYBENCH_3D_ARRAY_DECL(sum_c,LENGTH,LENGTH,LENGTH);
+  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(c,LENGTH,LENGTH);
+  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(W,LENGTH,LENGTH);
+#endif
+
+  /* Initialize array(s). */
+  init_array (length, POLYBENCH_ARRAY(c), POLYBENCH_ARRAY(W));
+
+  /* Start timer. */
+  polybench_start_instruments;
+
+  /* Run kernel. */
+  kernel_dynprog (tsteps, length,
+		  POLYBENCH_ARRAY(c),
+		  POLYBENCH_ARRAY(W),
+		  POLYBENCH_ARRAY(sum_c),
+		  &out);
 
   /* Stop and print timer. */
   polybench_stop_instruments;
   polybench_print_instruments;
 
-  print_array(argc, argv);
+  /* Prevent dead-code elimination. All live-out data must be printed
+     by the function call in argument. */
+  polybench_prevent_dce(print_array(out));
+
+  /* Be clean. */
+  POLYBENCH_FREE_ARRAY(sum_c);
+  POLYBENCH_FREE_ARRAY(c);
+  POLYBENCH_FREE_ARRAY(W);
 
   return 0;
 }
