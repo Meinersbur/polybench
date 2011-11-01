@@ -23,8 +23,8 @@ static
 void init_array(int ni, int nj,
 		DATA_TYPE *alpha,
 		DATA_TYPE *beta,
-		DATA_TYPE POLYBENCH_2D(C,NI,NI),
-		DATA_TYPE POLYBENCH_2D(A,NI,NJ))
+		DATA_TYPE POLYBENCH_2D(C,NI,NI,ni,ni),
+		DATA_TYPE POLYBENCH_2D(A,NI,NJ,ni,nj))
 {
   int i, j;
 
@@ -42,15 +42,15 @@ void init_array(int ni, int nj,
 /* DCE code. Must scan the entire live-out data.
    Can be used also to check the correctness of the output. */
 static
-void print_array(int ni, int nj,
-		 DATA_TYPE POLYBENCH_2D(C,NI,NI))
+void print_array(int ni,
+		 DATA_TYPE POLYBENCH_2D(C,NI,NI,ni,ni))
 {
   int i, j;
 
   for (i = 0; i < ni; i++)
-    for (j = 0; j < nj; j++) {
+    for (j = 0; j < ni; j++) {
 	fprintf (stderr, DATA_PRINTF_MODIFIER, C[i][j]);
-	if (i % 20 == 0) fprintf (stderr, "\n");
+	if ((i * ni + j) % 20 == 0) fprintf (stderr, "\n");
     }
   fprintf (stderr, "\n");
 }
@@ -62,8 +62,8 @@ static
 void kernel_syrk(int ni, int nj,
 		 DATA_TYPE alpha,
 		 DATA_TYPE beta,
-		 DATA_TYPE POLYBENCH_2D(C,NI,NI),
-		 DATA_TYPE POLYBENCH_2D(A,NI,NJ))
+		 DATA_TYPE POLYBENCH_2D(C,NI,NI,ni,ni),
+		 DATA_TYPE POLYBENCH_2D(A,NI,NJ,ni,nj))
 {
   int i, j, k;
 
@@ -90,17 +90,8 @@ int main(int argc, char** argv)
   /* Variable declaration/allocation. */
   DATA_TYPE alpha;
   DATA_TYPE beta;
-#ifdef POLYBENCH_HEAP_ARRAYS
-  /* Heap arrays use variable 'n' for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(C, ni, ni);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A, ni, nj);
-  C = POLYBENCH_ALLOC_2D_ARRAY(ni, ni, DATA_TYPE);
-  A = POLYBENCH_ALLOC_2D_ARRAY(ni, nj, DATA_TYPE);
-#else
-  /* Stack arrays use the numerical value 'N' for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(C,NI,NI);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A,NI,NJ);
-#endif
+  POLYBENCH_2D_ARRAY_DECL(C,DATA_TYPE,NI,NI,ni,ni);
+  POLYBENCH_2D_ARRAY_DECL(A,DATA_TYPE,NI,NJ,ni,nj);
 
   /* Initialize array(s). */
   init_array (ni, nj, &alpha, &beta, POLYBENCH_ARRAY(C), POLYBENCH_ARRAY(A));
@@ -117,7 +108,7 @@ int main(int argc, char** argv)
 
   /* Prevent dead-code elimination. All live-out data must be printed
      by the function call in argument. */
-  polybench_prevent_dce(print_array(ni, nj,  POLYBENCH_ARRAY(C)));
+  polybench_prevent_dce(print_array(ni, POLYBENCH_ARRAY(C)));
 
   /* Be clean. */
   POLYBENCH_FREE_ARRAY(C);

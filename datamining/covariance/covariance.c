@@ -20,9 +20,9 @@
 
 /* Array initialization. */
 static
-void init_array (int n,
+void init_array (int m, int n,
 		 DATA_TYPE *float_n,
-		 DATA_TYPE POLYBENCH_2D(data,M,N))
+		 DATA_TYPE POLYBENCH_2D(data,M,N,m,n))
 {
   int i, j;
 
@@ -37,16 +37,16 @@ void init_array (int n,
 /* DCE code. Must scan the entire live-out data.
    Can be used also to check the correctness of the output. */
 static
-void print_array(int n,
-		 DATA_TYPE POLYBENCH_2D(symmat,M,M))
+void print_array(int m,
+		 DATA_TYPE POLYBENCH_2D(symmat,M,M,m,m))
 
 {
   int i, j;
 
-  for (i = 0; i < n; i++)
-    for (j = 0; j < n; j++) {
+  for (i = 0; i < m; i++)
+    for (j = 0; j < m; j++) {
       fprintf (stderr, DATA_PRINTF_MODIFIER, symmat[i][j]);
-      if ((i * n + j) % 20 == 0) fprintf (stderr, "\n");
+      if ((i * m + j) % 20 == 0) fprintf (stderr, "\n");
     }
   fprintf (stderr, "\n");
 }
@@ -57,9 +57,9 @@ void print_array(int n,
 static
 void kernel_covariance(int m, int n,
 		       DATA_TYPE float_n,
-		       DATA_TYPE POLYBENCH_2D(data,M,N),
-		       DATA_TYPE POLYBENCH_2D(symmat,M,M),
-		       DATA_TYPE POLYBENCH_1D(mean,M))
+		       DATA_TYPE POLYBENCH_2D(data,M,N,m,n),
+		       DATA_TYPE POLYBENCH_2D(symmat,M,M,m,m),
+		       DATA_TYPE POLYBENCH_1D(mean,M,m))
 {
   int i, j, j1, j2;
 
@@ -100,24 +100,13 @@ int main(int argc, char** argv)
 
   /* Variable declaration/allocation. */
   DATA_TYPE float_n;
-#ifdef POLYBENCH_HEAP_ARRAYS
-  /* Heap arrays use variable 'n' for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(data, m, n);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(symmat, m, m);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(mean, m);
-  data = POLYBENCH_ALLOC_2D_ARRAY(m, n, DATA_TYPE);
-  symmat = POLYBENCH_ALLOC_2D_ARRAY(m, m, DATA_TYPE);
-  mean = POLYBENCH_ALLOC_1D_ARRAY(m, DATA_TYPE);
-#else
-  /* Stack arrays use the numerical value 'N' for the size. */
-  DATA_TYPE POLYBENCH_2D(data,M,N);
-  DATA_TYPE POLYBENCH_2D(symmat,M,M);
-  DATA_TYPE POLYBENCH_1D(mean,M);
-#endif
+  POLYBENCH_2D_ARRAY_DECL(data,DATA_TYPE,M,N,m,n);
+  POLYBENCH_2D_ARRAY_DECL(symmat,DATA_TYPE,M,M,m,m);
+  POLYBENCH_1D_ARRAY_DECL(mean,DATA_TYPE,M,m);
 
 
   /* Initialize array(s). */
-  init_array (n, &float_n, POLYBENCH_ARRAY(data));
+  init_array (m, n, &float_n, POLYBENCH_ARRAY(data));
 
   /* Start timer. */
   polybench_start_instruments;

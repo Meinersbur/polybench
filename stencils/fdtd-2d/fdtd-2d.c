@@ -22,10 +22,10 @@
 static
 void init_array (int nx,
 		 int ny,
-		 DATA_TYPE POLYBENCH_2D(ex,NX,NY),
-		 DATA_TYPE POLYBENCH_2D(ey,NX,NY),
-		 DATA_TYPE POLYBENCH_2D(hz,NX,NY),
-		 DATA_TYPE POLYBENCH_1D(_fict_,NY))
+		 DATA_TYPE POLYBENCH_2D(ex,NX,NY,nx,ny),
+		 DATA_TYPE POLYBENCH_2D(ey,NX,NY,nx,ny),
+		 DATA_TYPE POLYBENCH_2D(hz,NX,NY,nx,ny),
+		 DATA_TYPE POLYBENCH_1D(_fict_,NY,ny))
 {
   int i, j;
 
@@ -46,18 +46,18 @@ void init_array (int nx,
 static
 void print_array(int nx,
 		 int ny,
-		 DATA_TYPE POLYBENCH_2D(ex,NX,NY),
-		 DATA_TYPE POLYBENCH_2D(ey,NX,NY),
-		 DATA_TYPE POLYBENCH_2D(hz,NX,NY))
+		 DATA_TYPE POLYBENCH_2D(ex,NX,NY,nx,ny),
+		 DATA_TYPE POLYBENCH_2D(ey,NX,NY,nx,ny),
+		 DATA_TYPE POLYBENCH_2D(hz,NX,NY,nx,ny))
 {
   int i, j;
 
-  for (i = 0; i < NX; i++)
-    for (j = 0; j < NY; j++) {
+  for (i = 0; i < nx; i++)
+    for (j = 0; j < ny; j++) {
       fprintf(stderr, DATA_PRINTF_MODIFIER, ex[i][j]);
       fprintf(stderr, DATA_PRINTF_MODIFIER, ey[i][j]);
       fprintf(stderr, DATA_PRINTF_MODIFIER, hz[i][j]);
-      if ((i * NX + j) % 20 == 0) fprintf(stderr, "\n");
+      if ((i * nx + j) % 20 == 0) fprintf(stderr, "\n");
     }
   fprintf(stderr, "\n");
 }
@@ -69,10 +69,10 @@ static
 void kernel_fdtd_2d(int tmax,
 		    int nx,
 		    int ny,
-		    DATA_TYPE POLYBENCH_2D(ex,NX,NY),
-		    DATA_TYPE POLYBENCH_2D(ey,NX,NY),
-		    DATA_TYPE POLYBENCH_2D(hz,NX,NY),
-		    DATA_TYPE POLYBENCH_1D(_fict_,NY))
+		    DATA_TYPE POLYBENCH_2D(ex,NX,NY,nx,ny),
+		    DATA_TYPE POLYBENCH_2D(ey,NX,NY,nx,ny),
+		    DATA_TYPE POLYBENCH_2D(hz,NX,NY,nx,ny),
+		    DATA_TYPE POLYBENCH_1D(_fict_,NY,ny))
 {
   int t, i, j;
 
@@ -106,23 +106,10 @@ int main(int argc, char** argv)
   int ny = NY;
 
   /* Variable declaration/allocation. */
-#ifdef POLYBENCH_HEAP_ARRAYS
-  /* Heap arrays use the variable(s) for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(ex,nx,ny);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(ey,nx,ny);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(hz,nx,ny);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(_fict_,ny);
-  ex = POLYBENCH_ALLOC_2D_ARRAY(nx, ny, DATA_TYPE);
-  ey = POLYBENCH_ALLOC_2D_ARRAY(nx, ny, DATA_TYPE);
-  hz = POLYBENCH_ALLOC_2D_ARRAY(nx, ny, DATA_TYPE);
-  _fict_ = POLYBENCH_ALLOC_1D_ARRAY(ny, DATA_TYPE);
-#else
-  /* Stack arrays use the numerical value(s) for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(ex,NX,NY);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(ey,NX,NY);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(hz,NX,NY);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(_fict_,NY);
-#endif
+  POLYBENCH_2D_ARRAY_DECL(ex,DATA_TYPE,NX,NY,nx,ny);
+  POLYBENCH_2D_ARRAY_DECL(ey,DATA_TYPE,NX,NY,nx,ny);
+  POLYBENCH_2D_ARRAY_DECL(hz,DATA_TYPE,NX,NY,nx,ny);
+  POLYBENCH_1D_ARRAY_DECL(_fict_,DATA_TYPE,NY,ny);
 
   /* Initialize array(s). */
   init_array (nx, ny,
@@ -148,8 +135,8 @@ int main(int argc, char** argv)
 
   /* Prevent dead-code elimination. All live-out data must be printed
      by the function call in argument. */
-  polybench_prevent_dce(print_array(nx, ny, POLYBENCH_ARRAY(ex), 
-				    POLYBENCH_ARRAY(ey), 
+  polybench_prevent_dce(print_array(nx, ny, POLYBENCH_ARRAY(ex),
+				    POLYBENCH_ARRAY(ey),
 				    POLYBENCH_ARRAY(hz)));
 
   /* Be clean. */

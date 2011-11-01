@@ -21,9 +21,9 @@
 /* Array initialization. */
 static
 void init_array(int n,
-		DATA_TYPE POLYBENCH_2D(A,N,N),
-		DATA_TYPE POLYBENCH_1D(x,N),
-		DATA_TYPE POLYBENCH_1D(c,N))
+		DATA_TYPE POLYBENCH_2D(A,N,N,n,n),
+		DATA_TYPE POLYBENCH_1D(x,N,n),
+		DATA_TYPE POLYBENCH_1D(c,N,n))
 {
   int i, j;
 
@@ -40,7 +40,7 @@ void init_array(int n,
    Can be used also to check the correctness of the output. */
 static
 void print_array(int n,
-		 DATA_TYPE POLYBENCH_1D(x,N))
+		 DATA_TYPE POLYBENCH_1D(x,N,n))
 
 {
   int i;
@@ -56,9 +56,9 @@ void print_array(int n,
    including the call and return. */
 static
 void kernel_trisolv(int n,
-		    DATA_TYPE POLYBENCH_2D(A,N,N),
-		    DATA_TYPE POLYBENCH_1D(x,N),
-		    DATA_TYPE POLYBENCH_1D(c,N))
+		    DATA_TYPE POLYBENCH_2D(A,N,N,n,n),
+		    DATA_TYPE POLYBENCH_1D(x,N,n),
+		    DATA_TYPE POLYBENCH_1D(c,N,n))
 {
   int i, j;
 
@@ -81,20 +81,9 @@ int main(int argc, char** argv)
   int n = N;
 
   /* Variable declaration/allocation. */
-#ifdef POLYBENCH_HEAP_ARRAYS
-  /* Heap arrays use variable 'n' for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A, n, n);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(x, n);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(c, n);
-  A = POLYBENCH_ALLOC_2D_ARRAY(n, n, DATA_TYPE);
-  x = POLYBENCH_ALLOC_1D_ARRAY(n, DATA_TYPE);
-  c = POLYBENCH_ALLOC_1D_ARRAY(n, DATA_TYPE);
-#else
-  /* Stack arrays use the numerical value 'N' for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A, N, N);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(x, N);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(c, N);
-#endif
+  POLYBENCH_2D_ARRAY_DECL(A, DATA_TYPE, N, N, n, n);
+  POLYBENCH_1D_ARRAY_DECL(x, DATA_TYPE, N, n);
+  POLYBENCH_1D_ARRAY_DECL(c, DATA_TYPE, N, n);
 
 
   /* Initialize array(s). */

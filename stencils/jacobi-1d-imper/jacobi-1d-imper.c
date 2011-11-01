@@ -21,8 +21,8 @@
 /* Array initialization. */
 static
 void init_array (int n,
-		 DATA_TYPE POLYBENCH_1D(A,N),
-		 DATA_TYPE POLYBENCH_1D(B,N))
+		 DATA_TYPE POLYBENCH_1D(A,N,n),
+		 DATA_TYPE POLYBENCH_1D(B,N,n))
 {
   int i;
 
@@ -38,7 +38,7 @@ void init_array (int n,
    Can be used also to check the correctness of the output. */
 static
 void print_array(int n,
-		 DATA_TYPE POLYBENCH_1D(A,N))
+		 DATA_TYPE POLYBENCH_1D(A,N,n))
 
 {
   int i;
@@ -57,8 +57,8 @@ void print_array(int n,
 static
 void kernel_jacobi_1d_imper(int tsteps,
 			    int n,
-			    DATA_TYPE POLYBENCH_1D(A,N),
-			    DATA_TYPE POLYBENCH_1D(B,N))
+			    DATA_TYPE POLYBENCH_1D(A,N,n),
+			    DATA_TYPE POLYBENCH_1D(B,N,n))
 {
   int t, i, j;
 
@@ -82,17 +82,8 @@ int main(int argc, char** argv)
   int tsteps = TSTEPS;
 
   /* Variable declaration/allocation. */
-#ifdef POLYBENCH_HEAP_ARRAYS
-  /* Heap arrays use variable 'n' for the size. */
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(A, n);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(B, n);
-  A = POLYBENCH_ALLOC_1D_ARRAY(n, DATA_TYPE);
-  B = POLYBENCH_ALLOC_1D_ARRAY(n, DATA_TYPE);
-#else
-  /* Stack arrays use the numerical value 'N' for the size. */
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(A, N);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(B, N);
-#endif
+  POLYBENCH_1D_ARRAY_DECL(A, DATA_TYPE, N, n);
+  POLYBENCH_1D_ARRAY_DECL(B, DATA_TYPE, N, n);
 
 
   /* Initialize array(s). */

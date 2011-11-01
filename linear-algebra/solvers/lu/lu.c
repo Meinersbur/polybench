@@ -21,7 +21,7 @@
 /* Array initialization. */
 static
 void init_array (int n,
-		 DATA_TYPE POLYBENCH_2D(A,N,N))
+		 DATA_TYPE POLYBENCH_2D(A,N,N,n,n))
 {
   int i, j;
 
@@ -35,7 +35,7 @@ void init_array (int n,
    Can be used also to check the correctness of the output. */
 static
 void print_array(int n,
-		 DATA_TYPE POLYBENCH_2D(A,N,N))
+		 DATA_TYPE POLYBENCH_2D(A,N,N,n,n))
 
 {
   int i, j;
@@ -53,7 +53,7 @@ void print_array(int n,
    including the call and return. */
 static
 void kernel_lu(int n,
-	       DATA_TYPE POLYBENCH_2D(A,N,N))
+	       DATA_TYPE POLYBENCH_2D(A,N,N,n,n))
 {
   int i, j, k;
 
@@ -77,14 +77,7 @@ int main(int argc, char** argv)
   int n = N;
 
   /* Variable declaration/allocation. */
-#ifdef POLYBENCH_HEAP_ARRAYS
-  /* Heap arrays use variable 'n' for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A, n, n);
-  A = POLYBENCH_ALLOC_2D_ARRAY(n, n, DATA_TYPE);
-#else
-  /* Stack arrays use the numerical value 'N' for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A, N, N);
-#endif
+  POLYBENCH_2D_ARRAY_DECL(A, DATA_TYPE, N, N, n, n);
 
 
   /* Initialize array(s). */

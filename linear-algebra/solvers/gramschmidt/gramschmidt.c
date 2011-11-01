@@ -21,9 +21,9 @@
 /* Array initialization. */
 static
 void init_array(int ni, int nj,
-		DATA_TYPE POLYBENCH_2D(A,NI,NJ),
-		DATA_TYPE POLYBENCH_2D(R,NJ,NJ),
-		DATA_TYPE POLYBENCH_2D(Q,NI,NJ))
+		DATA_TYPE POLYBENCH_2D(A,NI,NJ,ni,nj),
+		DATA_TYPE POLYBENCH_2D(R,NJ,NJ,nj,nj),
+		DATA_TYPE POLYBENCH_2D(Q,NI,NJ,ni,nj))
 {
   int i, j;
 
@@ -42,9 +42,9 @@ void init_array(int ni, int nj,
    Can be used also to check the correctness of the output. */
 static
 void print_array(int ni, int nj,
-		 DATA_TYPE POLYBENCH_2D(A,NI,NJ),
-		 DATA_TYPE POLYBENCH_2D(R,NJ,NJ),
-		 DATA_TYPE POLYBENCH_2D(Q,NI,NJ))
+		 DATA_TYPE POLYBENCH_2D(A,NI,NJ,ni,nj),
+		 DATA_TYPE POLYBENCH_2D(R,NJ,NJ,nj,nj),
+		 DATA_TYPE POLYBENCH_2D(Q,NI,NJ,ni,nj))
 {
   int i, j;
 
@@ -73,9 +73,9 @@ void print_array(int ni, int nj,
    including the call and return. */
 static
 void kernel_gramschmidt(int ni, int nj,
-			DATA_TYPE POLYBENCH_2D(A,NI,NJ),
-			DATA_TYPE POLYBENCH_2D(R,NJ,NJ),
-			DATA_TYPE POLYBENCH_2D(Q,NI,NJ))
+			DATA_TYPE POLYBENCH_2D(A,NI,NJ,ni,nj),
+			DATA_TYPE POLYBENCH_2D(R,NJ,NJ,nj,nj),
+			DATA_TYPE POLYBENCH_2D(Q,NI,NJ,ni,nj))
 {
   int i, j, k;
 
@@ -111,20 +111,9 @@ int main(int argc, char** argv)
   int nj = NJ;
 
   /* Variable declaration/allocation. */
-#ifdef POLYBENCH_HEAP_ARRAYS
-  /* Heap arrays use variable 'n' for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A, ni, ni);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(R, nj, nj);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(Q, ni, nj);
-  A = POLYBENCH_ALLOC_2D_ARRAY(ni, nj, DATA_TYPE);
-  R = POLYBENCH_ALLOC_2D_ARRAY(nj, nj, DATA_TYPE);
-  Q = POLYBENCH_ALLOC_2D_ARRAY(ni, nj, DATA_TYPE);
-#else
-  /* Stack arrays use the numerical value 'N' for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A,NI,NJ);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(R,NJ,NJ);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(Q,NI,NJ);
-#endif
+  POLYBENCH_2D_ARRAY_DECL(A,DATA_TYPE,NI,NJ,ni,nj);
+  POLYBENCH_2D_ARRAY_DECL(R,DATA_TYPE,NJ,NJ,nj,nj);
+  POLYBENCH_2D_ARRAY_DECL(Q,DATA_TYPE,NI,NJ,ni,nj);
 
   /* Initialize array(s). */
   init_array (ni, nj,

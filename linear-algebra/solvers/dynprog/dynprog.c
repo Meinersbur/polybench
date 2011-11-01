@@ -21,8 +21,8 @@
 /* Array initialization. */
 static
 void init_array(int length,
-		DATA_TYPE POLYBENCH_2D(c,length,length),
-		DATA_TYPE POLYBENCH_2D(W,length,length))
+		DATA_TYPE POLYBENCH_2D(c,LENGTH,LENGTH,length,length),
+		DATA_TYPE POLYBENCH_2D(W,LENGTH,LENGTH,length,length))
 {
   int i, j;
   for (i = 0; i < length; i++)
@@ -47,9 +47,9 @@ void print_array(DATA_TYPE out)
    including the call and return. */
 static
 void kernel_dynprog(int tsteps, int length,
-		    DATA_TYPE POLYBENCH_2D(c,length,length),
-		    DATA_TYPE POLYBENCH_2D(W,length,length),
-		    DATA_TYPE POLYBENCH_3D(sum_c,length,length,length),
+		    DATA_TYPE POLYBENCH_2D(c,LENGTH,LENGTH,length,length),
+		    DATA_TYPE POLYBENCH_2D(W,LENGTH,LENGTH,length,length),
+		    DATA_TYPE POLYBENCH_3D(sum_c,LENGTH,LENGTH,LENGTH,length,length,length),
 		    DATA_TYPE *out)
 {
   int iter, i, j, k;
@@ -89,20 +89,9 @@ int main(int argc, char** argv)
 
   /* Variable declaration/allocation. */
   DATA_TYPE out;
-#ifdef POLYBENCH_HEAP_ARRAYS
-  /* Heap arrays use variable 'n' for the size. */
-  DATA_TYPE POLYBENCH_3D_ARRAY_DECL(sum_c, length, length, length);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(c, length, length);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(W, length, length);
-  sum_c = POLYBENCH_ALLOC_3D_ARRAY(length, length, length, DATA_TYPE);
-  c = POLYBENCH_ALLOC_2D_ARRAY(length, length, DATA_TYPE);
-  W = POLYBENCH_ALLOC_2D_ARRAY(length, length, DATA_TYPE);
-#else
-  /* Stack arrays use the numerical value 'N' for the size. */
-  DATA_TYPE POLYBENCH_3D_ARRAY_DECL(sum_c,LENGTH,LENGTH,LENGTH);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(c,LENGTH,LENGTH);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(W,LENGTH,LENGTH);
-#endif
+  POLYBENCH_3D_ARRAY_DECL(sum_c,DATA_TYPE,LENGTH,LENGTH,LENGTH,length,length,length);
+  POLYBENCH_2D_ARRAY_DECL(c,DATA_TYPE,LENGTH,LENGTH,length,length);
+  POLYBENCH_2D_ARRAY_DECL(W,DATA_TYPE,LENGTH,LENGTH,length,length);
 
   /* Initialize array(s). */
   init_array (length, POLYBENCH_ARRAY(c), POLYBENCH_ARRAY(W));

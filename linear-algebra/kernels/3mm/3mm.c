@@ -21,10 +21,10 @@
 /* Array initialization. */
 static
 void init_array(int ni, int nj, int nk, int nl, int nm,
-		DATA_TYPE POLYBENCH_2D(A,NI,NK),
-		DATA_TYPE POLYBENCH_2D(B,NK,NJ),
-		DATA_TYPE POLYBENCH_2D(C,NJ,NM),
-		DATA_TYPE POLYBENCH_2D(D,NM,NL))
+		DATA_TYPE POLYBENCH_2D(A,NI,NK,ni,nk),
+		DATA_TYPE POLYBENCH_2D(B,NK,NJ,nk,nj),
+		DATA_TYPE POLYBENCH_2D(C,NJ,NM,nj,nm),
+		DATA_TYPE POLYBENCH_2D(D,NM,NL,nm,nl))
 {
   int i, j;
 
@@ -47,14 +47,14 @@ void init_array(int ni, int nj, int nk, int nl, int nm,
    Can be used also to check the correctness of the output. */
 static
 void print_array(int ni, int nl,
-		 DATA_TYPE POLYBENCH_2D(G,NI,NL))
+		 DATA_TYPE POLYBENCH_2D(G,NI,NL,ni,nl))
 {
   int i, j;
 
   for (i = 0; i < ni; i++)
     for (j = 0; j < nl; j++) {
 	fprintf (stderr, DATA_PRINTF_MODIFIER, G[i][j]);
-	if (i % 20 == 0) fprintf (stderr, "\n");
+	if ((i * ni + j) % 20 == 0) fprintf (stderr, "\n");
     }
   fprintf (stderr, "\n");
 }
@@ -64,13 +64,13 @@ void print_array(int ni, int nl,
    including the call and return. */
 static
 void kernel_3mm(int ni, int nj, int nk, int nl, int nm,
-		DATA_TYPE POLYBENCH_2D(E,NI,NJ),
-		DATA_TYPE POLYBENCH_2D(A,NI,NK),
-		DATA_TYPE POLYBENCH_2D(B,NK,NJ),
-		DATA_TYPE POLYBENCH_2D(F,NJ,NL),
-		DATA_TYPE POLYBENCH_2D(C,NJ,NM),
-		DATA_TYPE POLYBENCH_2D(D,NM,NL),
-		DATA_TYPE POLYBENCH_2D(G,NI,NL))
+		DATA_TYPE POLYBENCH_2D(E,NI,NJ,ni,nj),
+		DATA_TYPE POLYBENCH_2D(A,NI,NK,ni,nk),
+		DATA_TYPE POLYBENCH_2D(B,NK,NJ,nk,nj),
+		DATA_TYPE POLYBENCH_2D(F,NJ,NL,nj,nl),
+		DATA_TYPE POLYBENCH_2D(C,NJ,NM,nj,nm),
+		DATA_TYPE POLYBENCH_2D(D,NM,NL,nm,nl),
+		DATA_TYPE POLYBENCH_2D(G,NI,NL,ni,nl))
 {
   int i, j, k;
 
@@ -114,32 +114,13 @@ int main(int argc, char** argv)
   int nm = NM;
 
   /* Variable declaration/allocation. */
-#ifdef POLYBENCH_HEAP_ARRAYS
-  /* Heap arrays use variable 'n' for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(E, ni, nj);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A, ni, nk);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(B, nk, nj);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(F, nj, nl);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(C, nj, nm);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(D, nm, nl);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(G, ni, nl);
-  E = POLYBENCH_ALLOC_2D_ARRAY(ni, nj, DATA_TYPE);
-  A = POLYBENCH_ALLOC_2D_ARRAY(ni, nk, DATA_TYPE);
-  B = POLYBENCH_ALLOC_2D_ARRAY(nk, nj, DATA_TYPE);
-  F = POLYBENCH_ALLOC_2D_ARRAY(nj, nl, DATA_TYPE);
-  C = POLYBENCH_ALLOC_2D_ARRAY(nj, nm, DATA_TYPE);
-  D = POLYBENCH_ALLOC_2D_ARRAY(nm, nl, DATA_TYPE);
-  G = POLYBENCH_ALLOC_2D_ARRAY(ni, nl, DATA_TYPE);
-#else
-  /* Stack arrays use the numerical value 'N' for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(E, NI, NJ);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A, NI, NK);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(B, NK, NJ);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(F, NJ, NL);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(C, NJ, NM);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(D, NM, NL);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(G, NI, NL);
-#endif
+  POLYBENCH_2D_ARRAY_DECL(E, DATA_TYPE, NI, NJ, ni, nj);
+  POLYBENCH_2D_ARRAY_DECL(A, DATA_TYPE, NI, NK, ni, nk);
+  POLYBENCH_2D_ARRAY_DECL(B, DATA_TYPE, NK, NJ, nk, nj);
+  POLYBENCH_2D_ARRAY_DECL(F, DATA_TYPE, NJ, NL, nj, nl);
+  POLYBENCH_2D_ARRAY_DECL(C, DATA_TYPE, NJ, NM, nj, nm);
+  POLYBENCH_2D_ARRAY_DECL(D, DATA_TYPE, NM, NL, nm, nl);
+  POLYBENCH_2D_ARRAY_DECL(G, DATA_TYPE, NI, NL, ni, nl);
 
   /* Initialize array(s). */
   init_array (ni, nj, nk, nl, nm,
