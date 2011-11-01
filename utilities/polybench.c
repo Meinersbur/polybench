@@ -377,20 +377,15 @@ void polybench_timer_print()
 
 
 
-
 static
 void *
 xmalloc (size_t num)
 {
-#if _POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600
   void* new = NULL;
-  posix_memalign (&new, 32, num);
-#else
-  void *new = malloc (num);
-#endif
-  if (! new)
+  int ret = posix_memalign (&new, 32, num);
+  if (! new || ret)
     {
-      fprintf (stderr, "Memory exhausted");
+      fprintf (stderr, "[PolyBench] posix_memalign: cannot allocate memory");
       exit (1);
     }
   return new;
