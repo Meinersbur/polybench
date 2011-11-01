@@ -21,11 +21,11 @@
 /* Array initialization. */
 static
 void init_array (int n,
-		 DATA_TYPE POLYBENCH_2D(y,N,N),
-		 DATA_TYPE POLYBENCH_2D(sum,N,N),
-		 DATA_TYPE POLYBENCH_1D(alpha,N),
-		 DATA_TYPE POLYBENCH_1D(beta,N),
-		 DATA_TYPE POLYBENCH_1D(r,N))
+		 DATA_TYPE POLYBENCH_2D(y,N,N,n,n),
+		 DATA_TYPE POLYBENCH_2D(sum,N,N,n,n),
+		 DATA_TYPE POLYBENCH_1D(alpha,N,n),
+		 DATA_TYPE POLYBENCH_1D(beta,N,n),
+		 DATA_TYPE POLYBENCH_1D(r,N,n))
 {
   int i, j;
 
@@ -46,7 +46,7 @@ void init_array (int n,
    Can be used also to check the correctness of the output. */
 static
 void print_array(int n,
-		 DATA_TYPE POLYBENCH_1D(out,N))
+		 DATA_TYPE POLYBENCH_1D(out,N,n))
 
 {
   int i;
@@ -62,12 +62,12 @@ void print_array(int n,
    including the call and return. */
 static
 void kernel_durbin(int n,
-		   DATA_TYPE POLYBENCH_2D(y,N,N),
-		   DATA_TYPE POLYBENCH_2D(sum,N,N),
-		   DATA_TYPE POLYBENCH_1D(alpha,N),
-		   DATA_TYPE POLYBENCH_1D(beta,N),
-		   DATA_TYPE POLYBENCH_1D(r,N),
-		   DATA_TYPE POLYBENCH_1D(out,N))
+		   DATA_TYPE POLYBENCH_2D(y,N,N,n,n),
+		   DATA_TYPE POLYBENCH_2D(sum,N,N,n,n),
+		   DATA_TYPE POLYBENCH_1D(alpha,N,n),
+		   DATA_TYPE POLYBENCH_1D(beta,N,n),
+		   DATA_TYPE POLYBENCH_1D(r,N,n),
+		   DATA_TYPE POLYBENCH_1D(out,N,n))
 {
   int i, k;
 
@@ -99,29 +99,12 @@ int main(int argc, char** argv)
   int n = N;
 
   /* Variable declaration/allocation. */
-#ifdef POLYBENCH_HEAP_ARRAYS
-  /* Heap arrays use variable 'n' for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(y, n, n);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(sum, n, n);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(alpha, n);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(beta, n);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(r, n);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(out, n);
-  y = POLYBENCH_ALLOC_2D_ARRAY(n, n, DATA_TYPE);
-  sum = POLYBENCH_ALLOC_2D_ARRAY(n, n, DATA_TYPE);
-  alpha = POLYBENCH_ALLOC_1D_ARRAY(n, DATA_TYPE);
-  beta = POLYBENCH_ALLOC_1D_ARRAY(n, DATA_TYPE);
-  r = POLYBENCH_ALLOC_1D_ARRAY(n, DATA_TYPE);
-  out = POLYBENCH_ALLOC_1D_ARRAY(n, DATA_TYPE);
-#else
-  /* Stack arrays use the numerical value 'N' for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(y, N, N);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(sum, N, N);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(alpha, N);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(beta, N);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(r, N);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(out, N);
-#endif
+  POLYBENCH_2D_ARRAY_DECL(y, DATA_TYPE, N, N, n, n);
+  POLYBENCH_2D_ARRAY_DECL(sum, DATA_TYPE, N, N, n, n);
+  POLYBENCH_1D_ARRAY_DECL(alpha, DATA_TYPE, N, n);
+  POLYBENCH_1D_ARRAY_DECL(beta, DATA_TYPE, N, n);
+  POLYBENCH_1D_ARRAY_DECL(r, DATA_TYPE, N, n);
+  POLYBENCH_1D_ARRAY_DECL(out, DATA_TYPE, N, n);
 
 
   /* Initialize array(s). */

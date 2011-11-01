@@ -21,8 +21,8 @@
 /* Array initialization. */
 static
 void init_array (int nx, int ny,
-		 DATA_TYPE POLYBENCH_2D(A,NX,NY),
-		 DATA_TYPE POLYBENCH_1D(x,NY))
+		 DATA_TYPE POLYBENCH_2D(A,NX,NY,nx,ny),
+		 DATA_TYPE POLYBENCH_1D(x,NY,ny))
 {
   int i, j;
 
@@ -38,7 +38,7 @@ void init_array (int nx, int ny,
    Can be used also to check the correctness of the output. */
 static
 void print_array(int nx,
-		 DATA_TYPE POLYBENCH_1D(y,NX))
+		 DATA_TYPE POLYBENCH_1D(y,NX,nx))
 
 {
   int i;
@@ -55,10 +55,10 @@ void print_array(int nx,
    including the call and return. */
 static
 void kernel_atax(int nx, int ny,
-		 DATA_TYPE POLYBENCH_2D(A,NX,NY),
-		 DATA_TYPE POLYBENCH_1D(x,NY),
-		 DATA_TYPE POLYBENCH_1D(y,NX),
-		 DATA_TYPE POLYBENCH_1D(tmp,NY))
+		 DATA_TYPE POLYBENCH_2D(A,NX,NY,nx,ny),
+		 DATA_TYPE POLYBENCH_1D(x,NY,ny),
+		 DATA_TYPE POLYBENCH_1D(y,NX,nx),
+		 DATA_TYPE POLYBENCH_1D(tmp,NY,ny))
 {
   int i, j;
 
@@ -85,23 +85,10 @@ int main(int argc, char** argv)
   int ny = NY;
 
   /* Variable declaration/allocation. */
-#ifdef POLYBENCH_HEAP_ARRAYS
-  /* Heap arrays use variable 'n' for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A, nx, ny);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(x, ny);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(y, nx);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(tmp, ny);
-  A = POLYBENCH_ALLOC_2D_ARRAY(nx, ny, DATA_TYPE);
-  x = POLYBENCH_ALLOC_1D_ARRAY(ny, DATA_TYPE);
-  y = POLYBENCH_ALLOC_1D_ARRAY(nx, DATA_TYPE);
-  tmp = POLYBENCH_ALLOC_1D_ARRAY(ny, DATA_TYPE);
-#else
-  /* Stack arrays use the numerical value 'N' for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A, NX, NY);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(x, NY);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(y, NX);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(tmp, NY);
-#endif
+  POLYBENCH_2D_ARRAY_DECL(A, DATA_TYPE, NX, NY, nx, ny);
+  POLYBENCH_1D_ARRAY_DECL(x, DATA_TYPE, NY, ny);
+  POLYBENCH_1D_ARRAY_DECL(y, DATA_TYPE, NX, nx);
+  POLYBENCH_1D_ARRAY_DECL(tmp, DATA_TYPE, NY, ny);
 
   /* Initialize array(s). */
   init_array (nx, ny, POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(x));

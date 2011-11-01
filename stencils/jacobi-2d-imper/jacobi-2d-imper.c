@@ -21,8 +21,8 @@
 /* Array initialization. */
 static
 void init_array (int n,
-		 DATA_TYPE POLYBENCH_2D(A,N,N),
-		 DATA_TYPE POLYBENCH_2D(B,N,N))
+		 DATA_TYPE POLYBENCH_2D(A,N,N,n,n),
+		 DATA_TYPE POLYBENCH_2D(B,N,N,n,n))
 {
   int i, j;
 
@@ -39,7 +39,7 @@ void init_array (int n,
    Can be used also to check the correctness of the output. */
 static
 void print_array(int n,
-		 DATA_TYPE POLYBENCH_2D(A,N,N))
+		 DATA_TYPE POLYBENCH_2D(A,N,N,n,n))
 
 {
   int i, j;
@@ -47,7 +47,7 @@ void print_array(int n,
   for (i = 0; i < n; i++)
     for (j = 0; j < n; j++) {
       fprintf(stderr, DATA_PRINTF_MODIFIER, A[i][j]);
-      if ((i * N + j) % 20 == 0) fprintf(stderr, "\n");
+      if ((i * n + j) % 20 == 0) fprintf(stderr, "\n");
     }
   fprintf(stderr, "\n");
 }
@@ -58,8 +58,8 @@ void print_array(int n,
 static
 void kernel_jacobi_2d_imper(int tsteps,
 			    int n,
-			    DATA_TYPE POLYBENCH_2D(A,N,N),
-			    DATA_TYPE POLYBENCH_2D(B,N,N))
+			    DATA_TYPE POLYBENCH_2D(A,N,N,n,n),
+			    DATA_TYPE POLYBENCH_2D(B,N,N,n,n))
 {
   int t, i, j;
 
@@ -85,17 +85,8 @@ int main(int argc, char** argv)
   int tsteps = TSTEPS;
 
   /* Variable declaration/allocation. */
-#ifdef POLYBENCH_HEAP_ARRAYS
-  /* Heap arrays use variable 'n' for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A, n, n);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(B, n, n);
-  A = POLYBENCH_ALLOC_2D_ARRAY(n, n, DATA_TYPE);
-  B = POLYBENCH_ALLOC_2D_ARRAY(n, n, DATA_TYPE);
-#else
-  /* Stack arrays use the numerical value 'N' for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A, N, N);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(B, N, N);
-#endif
+  POLYBENCH_2D_ARRAY_DECL(A, DATA_TYPE, N, N, n, n);
+  POLYBENCH_2D_ARRAY_DECL(B, DATA_TYPE, N, N, n, n);
 
 
   /* Initialize array(s). */

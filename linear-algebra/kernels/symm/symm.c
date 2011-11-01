@@ -23,9 +23,9 @@ static
 void init_array(int ni, int nj,
 		DATA_TYPE *alpha,
 		DATA_TYPE *beta,
-		DATA_TYPE POLYBENCH_2D(C,NI,NJ),
-		DATA_TYPE POLYBENCH_2D(A,NJ,NJ),
-		DATA_TYPE POLYBENCH_2D(B,NI,NJ))
+		DATA_TYPE POLYBENCH_2D(C,NI,NJ,ni,nj),
+		DATA_TYPE POLYBENCH_2D(A,NJ,NJ,nj,nj),
+		DATA_TYPE POLYBENCH_2D(B,NI,NJ,ni,nj))
 {
   int i, j;
 
@@ -46,14 +46,14 @@ void init_array(int ni, int nj,
    Can be used also to check the correctness of the output. */
 static
 void print_array(int ni, int nj,
-		 DATA_TYPE POLYBENCH_2D(C,NI,NJ))
+		 DATA_TYPE POLYBENCH_2D(C,NI,NJ,ni,nj))
 {
   int i, j;
 
   for (i = 0; i < ni; i++)
     for (j = 0; j < nj; j++) {
 	fprintf (stderr, DATA_PRINTF_MODIFIER, C[i][j]);
-	if (i % 20 == 0) fprintf (stderr, "\n");
+	if ((i * ni + j) % 20 == 0) fprintf (stderr, "\n");
     }
   fprintf (stderr, "\n");
 }
@@ -65,9 +65,9 @@ static
 void kernel_symm(int ni, int nj,
 		 DATA_TYPE alpha,
 		 DATA_TYPE beta,
-		 DATA_TYPE POLYBENCH_2D(C,NI,NJ),
-		 DATA_TYPE POLYBENCH_2D(A,NJ,NJ),
-		 DATA_TYPE POLYBENCH_2D(B,NI,NJ))
+		 DATA_TYPE POLYBENCH_2D(C,NI,NJ,ni,nj),
+		 DATA_TYPE POLYBENCH_2D(A,NJ,NJ,nj,nj),
+		 DATA_TYPE POLYBENCH_2D(B,NI,NJ,ni,nj))
 {
   int i, j, k;
   DATA_TYPE acc;
@@ -99,20 +99,9 @@ int main(int argc, char** argv)
   /* Variable declaration/allocation. */
   DATA_TYPE alpha;
   DATA_TYPE beta;
-#ifdef POLYBENCH_HEAP_ARRAYS
-  /* Heap arrays use variable 'n' for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(C, ni, nj);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A, nj, nj);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(B, ni, nj);
-  C = POLYBENCH_ALLOC_2D_ARRAY(ni, nj, DATA_TYPE);
-  A = POLYBENCH_ALLOC_2D_ARRAY(nj, nj, DATA_TYPE);
-  B = POLYBENCH_ALLOC_2D_ARRAY(ni, nj, DATA_TYPE);
-#else
-  /* Stack arrays use the numerical value 'N' for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(C,NI,NJ);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A,NJ,NJ);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(B,NI,NJ);
-#endif
+  POLYBENCH_2D_ARRAY_DECL(C,DATA_TYPE,NI,NJ,ni,nj);
+  POLYBENCH_2D_ARRAY_DECL(A,DATA_TYPE,NJ,NJ,nj,nj);
+  POLYBENCH_2D_ARRAY_DECL(B,DATA_TYPE,NI,NJ,ni,nj);
 
   /* Initialize array(s). */
   init_array (ni, nj, &alpha, &beta,

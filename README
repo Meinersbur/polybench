@@ -169,3 +169,24 @@ exceed a given thresold, set to 5%.
 It is also possible to use POLYBENCH_CYCLE_ACCURATE_TIMER to use the
 Time Stamp Counter instead of gettimeofday() to monitor the number of
 elapsed cycles.
+
+
+
+
+----------------------------------------
+* Generating macro-free benchmark suite:
+----------------------------------------
+
+(from the root of the archive:)
+$> PARGS="-I utilities -DPOLYBENCH_TIME";
+$> for i in `cat utilities/benchmark_list`; do create_cpped_version.sh $i "$PARGS"; done
+
+This create for each benchmark file 'xxx.c' a new file
+'xxx.preproc.c'. The PARGS variable in the above example can be set to
+the desired configuration, for instance to create a full C99 version
+(parametric arrays) using the heap to allocate data:
+
+$> PARGS="-I utilities -DPOLYBENCH_HEAP_ARRAYS -DPOLYBENCH_USE_C99_PROTO";
+$> for i in `cat utilities/benchmark_list`; do ./utilities/create_cpped_version.sh "$i" "$PARGS"; done
+
+

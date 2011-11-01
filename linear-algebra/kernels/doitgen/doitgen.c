@@ -21,8 +21,8 @@
 /* Array initialization. */
 static
 void init_array(int nr, int nq, int np,
-		DATA_TYPE POLYBENCH_3D(A,NR,NQ,NP),
-		DATA_TYPE POLYBENCH_2D(C4,NP,NP))
+		DATA_TYPE POLYBENCH_3D(A,NR,NQ,NP,nr,nq,np),
+		DATA_TYPE POLYBENCH_2D(C4,NP,NP,np,np))
 {
   int i, j, k;
 
@@ -40,7 +40,7 @@ void init_array(int nr, int nq, int np,
    Can be used also to check the correctness of the output. */
 static
 void print_array(int nr, int nq, int np,
-		 DATA_TYPE POLYBENCH_3D(A,NR,NP,NQ))
+		 DATA_TYPE POLYBENCH_3D(A,NR,NQ,NP,nr,np,nq))
 {
   int i, j, k;
 
@@ -58,9 +58,9 @@ void print_array(int nr, int nq, int np,
    including the call and return. */
 static
 void kernel_doitgen(int nr, int nq, int np,
-		    DATA_TYPE POLYBENCH_3D(A,NR,NQ,NP),
-		    DATA_TYPE POLYBENCH_2D(C4,NP,NP),
-		    DATA_TYPE POLYBENCH_3D(sum,NR,NQ,NP))
+		    DATA_TYPE POLYBENCH_3D(A,NR,NQ,NP,nr,nq,no),
+		    DATA_TYPE POLYBENCH_2D(C4,NP,NP,np,np),
+		    DATA_TYPE POLYBENCH_3D(sum,NR,NQ,NP,nr,nq,np))
 {
   int r, q, p, s;
 
@@ -88,20 +88,9 @@ int main(int argc, char** argv)
   int np = NP;
 
   /* Variable declaration/allocation. */
-#ifdef POLYBENCH_HEAP_ARRAYS
-  /* Heap arrays use variable 'n' for the size. */
-  DATA_TYPE POLYBENCH_3D_ARRAY_DECL(A, nr, nq, np);
-  DATA_TYPE POLYBENCH_3D_ARRAY_DECL(sum, nr, nq, np);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(C4, np, np);
-  A = POLYBENCH_ALLOC_3D_ARRAY(nr, nq, np, DATA_TYPE);
-  sum = POLYBENCH_ALLOC_3D_ARRAY(nr, nq, np, DATA_TYPE);
-  C4 = POLYBENCH_ALLOC_2D_ARRAY(np, np, DATA_TYPE);
-#else
-  /* Stack arrays use the numerical value 'N' for the size. */
-  DATA_TYPE POLYBENCH_3D_ARRAY_DECL(A,NR,NQ,NP);
-  DATA_TYPE POLYBENCH_3D_ARRAY_DECL(sum,NR,NQ,NP);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(C4,NP,NP);
-#endif
+  POLYBENCH_3D_ARRAY_DECL(A,DATA_TYPE,NR,NQ,NP,nr,nq,np);
+  POLYBENCH_3D_ARRAY_DECL(sum,DATA_TYPE,NR,NQ,NP,nr,nq,np);
+  POLYBENCH_2D_ARRAY_DECL(C4,DATA_TYPE,NP,NP,np,np);
 
   /* Initialize array(s). */
   init_array (nr, nq, np,

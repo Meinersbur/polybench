@@ -22,8 +22,8 @@
 static
 void init_array(int ni,
 		DATA_TYPE *alpha,
-		DATA_TYPE POLYBENCH_2D(A,NI,NI),
-		DATA_TYPE POLYBENCH_2D(B,NI,NI))
+		DATA_TYPE POLYBENCH_2D(A,NI,NI,ni,ni),
+		DATA_TYPE POLYBENCH_2D(B,NI,NI,ni,ni))
 {
   int i, j;
 
@@ -40,14 +40,14 @@ void init_array(int ni,
    Can be used also to check the correctness of the output. */
 static
 void print_array(int ni,
-		 DATA_TYPE POLYBENCH_2D(B,NI,NI))
+		 DATA_TYPE POLYBENCH_2D(B,NI,NI,ni,ni))
 {
   int i, j;
 
   for (i = 0; i < ni; i++)
     for (j = 0; j < ni; j++) {
 	fprintf (stderr, DATA_PRINTF_MODIFIER, B[i][j]);
-	if (i % 20 == 0) fprintf (stderr, "\n");
+	if ((i * ni + j) % 20 == 0) fprintf (stderr, "\n");
     }
   fprintf (stderr, "\n");
 }
@@ -58,8 +58,8 @@ void print_array(int ni,
 static
 void kernel_trmm(int ni,
 		 DATA_TYPE alpha,
-		 DATA_TYPE POLYBENCH_2D(A,NI,NI),
-		 DATA_TYPE POLYBENCH_2D(B,NI,NI))
+		 DATA_TYPE POLYBENCH_2D(A,NI,NI,ni,ni),
+		 DATA_TYPE POLYBENCH_2D(B,NI,NI,ni,ni))
 {
   int i, j, k;
 
@@ -81,17 +81,8 @@ int main(int argc, char** argv)
 
   /* Variable declaration/allocation. */
   DATA_TYPE alpha;
-#ifdef POLYBENCH_HEAP_ARRAYS
-  /* Heap arrays use variable 'n' for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A, ni, ni);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(B, ni, ni);
-  A = POLYBENCH_ALLOC_2D_ARRAY(ni, ni, DATA_TYPE);
-  B = POLYBENCH_ALLOC_2D_ARRAY(ni, ni, DATA_TYPE);
-#else
-  /* Stack arrays use the numerical value 'N' for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A,NI,NI);
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(B,NI,NI);
-#endif
+  POLYBENCH_2D_ARRAY_DECL(A,DATA_TYPE,NI,NI,ni,ni);
+  POLYBENCH_2D_ARRAY_DECL(B,DATA_TYPE,NI,NI,ni,ni);
 
   /* Initialize array(s). */
   init_array (ni, &alpha, POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(B));

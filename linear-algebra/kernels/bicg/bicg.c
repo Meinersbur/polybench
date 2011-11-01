@@ -21,9 +21,9 @@
 /* Array initialization. */
 static
 void init_array (int nx, int ny,
-		 DATA_TYPE POLYBENCH_2D(A,NX,NY),
-		 DATA_TYPE POLYBENCH_1D(r,NX),
-		 DATA_TYPE POLYBENCH_1D(p,NY))
+		 DATA_TYPE POLYBENCH_2D(A,NX,NY,nx,ny),
+		 DATA_TYPE POLYBENCH_1D(r,NX,nx),
+		 DATA_TYPE POLYBENCH_1D(p,NY,ny))
 {
   int i, j;
 
@@ -41,8 +41,8 @@ void init_array (int nx, int ny,
    Can be used also to check the correctness of the output. */
 static
 void print_array(int nx, int ny,
-		 DATA_TYPE POLYBENCH_1D(s,NY),
-		 DATA_TYPE POLYBENCH_1D(q,NX))
+		 DATA_TYPE POLYBENCH_1D(s,NY,ny),
+		 DATA_TYPE POLYBENCH_1D(q,NX,nx))
 
 {
   int i;
@@ -63,11 +63,11 @@ void print_array(int nx, int ny,
    including the call and return. */
 static
 void kernel_bicg(int nx, int ny,
-		 DATA_TYPE POLYBENCH_2D(A,NX,NY),
-		 DATA_TYPE POLYBENCH_1D(s,NY),
-		 DATA_TYPE POLYBENCH_1D(q,NX),
-		 DATA_TYPE POLYBENCH_1D(p,NY),
-		 DATA_TYPE POLYBENCH_1D(r,NX))
+		 DATA_TYPE POLYBENCH_2D(A,NX,NY,nx,ny),
+		 DATA_TYPE POLYBENCH_1D(s,NY,ny),
+		 DATA_TYPE POLYBENCH_1D(q,NX,nx),
+		 DATA_TYPE POLYBENCH_1D(p,NY,ny),
+		 DATA_TYPE POLYBENCH_1D(r,NX,nx))
 {
   int i, j;
 
@@ -95,26 +95,11 @@ int main(int argc, char** argv)
   int ny = NY;
 
   /* Variable declaration/allocation. */
-#ifdef POLYBENCH_HEAP_ARRAYS
-  /* Heap arrays use variable 'n' for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A, nx, ny);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(s, ny);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(q, nx);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(p, ny);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(r, nx);
-  A = POLYBENCH_ALLOC_2D_ARRAY(nx, ny, DATA_TYPE);
-  s = POLYBENCH_ALLOC_1D_ARRAY(ny, DATA_TYPE);
-  q = POLYBENCH_ALLOC_1D_ARRAY(nx, DATA_TYPE);
-  p = POLYBENCH_ALLOC_1D_ARRAY(ny, DATA_TYPE);
-  r = POLYBENCH_ALLOC_1D_ARRAY(nx, DATA_TYPE);
-#else
-  /* Stack arrays use the numerical value 'N' for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(A, NX, NY);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(s, NY);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(q, NX);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(p, NY);
-  DATA_TYPE POLYBENCH_1D_ARRAY_DECL(r, NX);
-#endif
+  POLYBENCH_2D_ARRAY_DECL(A, DATA_TYPE, NX, NY, nx, ny);
+  POLYBENCH_1D_ARRAY_DECL(s, DATA_TYPE, NY, ny);
+  POLYBENCH_1D_ARRAY_DECL(q, DATA_TYPE, NX, nx);
+  POLYBENCH_1D_ARRAY_DECL(p, DATA_TYPE, NY, ny);
+  POLYBENCH_1D_ARRAY_DECL(r, DATA_TYPE, NX, nx);
 
   /* Initialize array(s). */
   init_array (nx, ny,
