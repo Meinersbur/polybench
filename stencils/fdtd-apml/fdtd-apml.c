@@ -100,9 +100,9 @@ void print_array(int cz,
 /* Main computational kernel. The whole function will be timed,
    including the call and return. */
 static
-void kernel_fdtd_apml(int Cz,
-		      int Cxm,
-		      int Cym,
+void kernel_fdtd_apml(int cz,
+		      int cxm,
+		      int cym,
 		      DATA_TYPE mui,
 		      DATA_TYPE ch,
 		      DATA_TYPE POLYBENCH_2D(Ax,CZ+1,CYM+1,cz+1,cym+1),
@@ -123,11 +123,11 @@ void kernel_fdtd_apml(int Cz,
   int iz, iy, ix;
 
 #pragma scop
-  for (iz = 0; iz < Cz; iz++)
+  for (iz = 0; iz < cz; iz++)
     {
-      for (iy = 0; iy < Cym; iy++)
+      for (iy = 0; iy < cym; iy++)
 	{
-	  for (ix = 0; ix < Cxm; ix++)
+	  for (ix = 0; ix < cxm; ix++)
 	    {
 	      clf[iz][iy] = Ex[iz][iy][ix] - Ex[iz][iy+1][ix] + Ey[iz][iy][ix+1] - Ey[iz][iy][ix];
 	      tmp[iz][iy] = (cymh[iy] / cyph[iy]) * Bza[iz][iy][ix] - (ch / cyph[iy]) * clf[iz][iy];
@@ -136,27 +136,27 @@ void kernel_fdtd_apml(int Cz,
 		- (mui * czm[iz] / cxph[ix]) * Bza[iz][iy][ix];
 	      Bza[iz][iy][ix] = tmp[iz][iy];
 	    }
-	  clf[iz][iy] = Ex[iz][iy][Cxm] - Ex[iz][iy+1][Cxm] + Ry[iz][iy] - Ey[iz][iy][Cxm];
-	  tmp[iz][iy] = (cymh[iy] / cyph[iy]) * Bza[iz][iy][Cxm] - (ch / cyph[iy]) * clf[iz][iy];
-	  Hz[iz][iy][Cxm]=(cxmh[Cxm] / cxph[Cxm]) * Hz[iz][iy][Cxm]
-	    + (mui * czp[iz] / cxph[Cxm]) * tmp[iz][iy]
-	    - (mui * czm[iz] / cxph[Cxm]) * Bza[iz][iy][Cxm];
-	  Bza[iz][iy][Cxm] = tmp[iz][iy];
-	  for (ix = 0; ix < Cxm; ix++)
+	  clf[iz][iy] = Ex[iz][iy][cxm] - Ex[iz][iy+1][cxm] + Ry[iz][iy] - Ey[iz][iy][cxm];
+	  tmp[iz][iy] = (cymh[iy] / cyph[iy]) * Bza[iz][iy][cxm] - (ch / cyph[iy]) * clf[iz][iy];
+	  Hz[iz][iy][cxm]=(cxmh[cxm] / cxph[cxm]) * Hz[iz][iy][cxm]
+	    + (mui * czp[iz] / cxph[cxm]) * tmp[iz][iy]
+	    - (mui * czm[iz] / cxph[cxm]) * Bza[iz][iy][cxm];
+	  Bza[iz][iy][cxm] = tmp[iz][iy];
+	  for (ix = 0; ix < cxm; ix++)
 	    {
-	      clf[iz][iy] = Ex[iz][Cym][ix] - Ax[iz][ix] + Ey[iz][Cym][ix+1] - Ey[iz][Cym][ix];
-	      tmp[iz][iy] = (cymh[Cym] / cyph[iy]) * Bza[iz][iy][ix] - (ch / cyph[iy]) * clf[iz][iy];
-	      Hz[iz][Cym][ix] = (cxmh[ix] / cxph[ix]) * Hz[iz][Cym][ix]
+	      clf[iz][iy] = Ex[iz][cym][ix] - Ax[iz][ix] + Ey[iz][cym][ix+1] - Ey[iz][cym][ix];
+	      tmp[iz][iy] = (cymh[cym] / cyph[iy]) * Bza[iz][iy][ix] - (ch / cyph[iy]) * clf[iz][iy];
+	      Hz[iz][cym][ix] = (cxmh[ix] / cxph[ix]) * Hz[iz][cym][ix]
 		+ (mui * czp[iz] / cxph[ix]) * tmp[iz][iy]
-		- (mui * czm[iz] / cxph[ix]) * Bza[iz][Cym][ix];
-	      Bza[iz][Cym][ix] = tmp[iz][iy];
+		- (mui * czm[iz] / cxph[ix]) * Bza[iz][cym][ix];
+	      Bza[iz][cym][ix] = tmp[iz][iy];
 	    }
-	  clf[iz][iy] = Ex[iz][Cym][Cxm] - Ax[iz][Cxm] + Ry[iz][Cym] - Ey[iz][Cym][Cxm];
-	  tmp[iz][iy] = (cymh[Cym] / cyph[Cym]) * Bza[iz][Cym][Cxm] - (ch / cyph[Cym]) * clf[iz][iy];
-	  Hz[iz][Cym][Cxm] = (cxmh[Cxm] / cxph[Cxm]) * Hz[iz][Cym][Cxm]
-	    + (mui * czp[iz] / cxph[Cxm]) * tmp[iz][iy]
-	    - (mui * czm[iz] / cxph[Cxm]) * Bza[iz][Cym][Cxm];
-	  Bza[iz][Cym][Cxm] = tmp[iz][iy];
+	  clf[iz][iy] = Ex[iz][cym][cxm] - Ax[iz][cxm] + Ry[iz][cym] - Ey[iz][cym][cxm];
+	  tmp[iz][iy] = (cymh[cym] / cyph[cym]) * Bza[iz][cym][cxm] - (ch / cyph[cym]) * clf[iz][iy];
+	  Hz[iz][cym][cxm] = (cxmh[cxm] / cxph[cxm]) * Hz[iz][cym][cxm]
+	    + (mui * czp[iz] / cxph[cxm]) * tmp[iz][iy]
+	    - (mui * czm[iz] / cxph[cxm]) * Bza[iz][cym][cxm];
+	  Bza[iz][cym][cxm] = tmp[iz][iy];
 	}
     }
 #pragma endscop
