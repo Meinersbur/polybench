@@ -40,7 +40,7 @@ void init_array(int nr, int nq, int np,
    Can be used also to check the correctness of the output. */
 static
 void print_array(int nr, int nq, int np,
-		 DATA_TYPE POLYBENCH_3D(A,NR,NQ,NP,nr,np,nq))
+		 DATA_TYPE POLYBENCH_3D(A,NR,NQ,NP,nr,nq,np))
 {
   int i, j, k;
 
@@ -58,7 +58,7 @@ void print_array(int nr, int nq, int np,
    including the call and return. */
 static
 void kernel_doitgen(int nr, int nq, int np,
-		    DATA_TYPE POLYBENCH_3D(A,NR,NQ,NP,nr,nq,no),
+		    DATA_TYPE POLYBENCH_3D(A,NR,NQ,NP,nr,nq,np),
 		    DATA_TYPE POLYBENCH_2D(C4,NP,NP,np,np),
 		    DATA_TYPE POLYBENCH_3D(sum,NR,NQ,NP,nr,nq,np))
 {
