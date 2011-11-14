@@ -7,7 +7,7 @@ Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
 
 
 -------------
-* New in 3.0:
+* New in 3.1:
 -------------
 
 - fixed a typo in polybench.h, causing compilation problems for 3D arrays.
