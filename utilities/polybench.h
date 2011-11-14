@@ -46,7 +46,7 @@
    int b[x] => POLYBENCH_1D_ARRAY(b, x)
    int A[N][N] => POLYBENCH_2D_ARRAY(A, N, N)
 */
-# ifdef POLYBENCH_HEAP_ARRAYS
+# ifndef POLYBENCH_STACK_ARRAYS
 #  define POLYBENCH_ARRAY(x) *x
 #  define POLYBENCH_FREE_ARRAY(x) free((void*)x);
 #  define POLYBENCH_DECL_VAR(x) (*x)
@@ -102,11 +102,11 @@
 #  define POLYBENCH_2D_ARRAY_DECL(var, type, dim1, dim2, ddim1, ddim2)	\
   type POLYBENCH_2D(POLYBENCH_DECL_VAR(var), dim1, dim2, ddim1, ddim2);
 #  define POLYBENCH_3D_ARRAY_DECL(var, type, dim1, dim2, dim3, ddim1, ddim2, ddim3) \
-  type POLYBENCH_3D(POLYBENCH_DECL_VAR(var), dim1, dim2, dim3, ddim1, ddim2, ddim3));
+  type POLYBENCH_3D(POLYBENCH_DECL_VAR(var), dim1, dim2, dim3, ddim1, ddim2, ddim3);
 #  define POLYBENCH_4D_ARRAY_DECL(var, dim1, dim2, dim3, dim4, ddim1, ddim2, ddim3, ddim4) \
   type POLYBENCH_4D(POLYBENCH_DECL_VAR(var), dim1, dim2, dim3, dim4, ddim1, ddim2, ddim3, ddim4);
 #  define POLYBENCH_5D_ARRAY_DECL(var, dim1, dim2, dim3, dim4, dim5, ddim1, ddim2, ddim3, ddim4, ddim5) \
-  type POLYBENCH_5D(POLYBENCH_DECL_VAR(var), dim1, dim2, dim3, dim4, dim5, ddim1, ddim2, ddim3, ddim4, ddim5));
+  type POLYBENCH_5D(POLYBENCH_DECL_VAR(var), dim1, dim2, dim3, dim4, dim5, ddim1, ddim2, ddim3, ddim4, ddim5);
 # endif
 
 

@@ -1,10 +1,17 @@
 * * * * * * * * * *
-* PolyBenchs 3.0  *
+* PolyBenchs 3.1  *
 * * * * * * * * * *
 
 Copyright (c) 2011 the Ohio State University.
 Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
 
+
+-------------
+* New in 3.0:
+-------------
+
+- fixed a typo in polybench.h, causing compilation problems for 3D arrays.
+- set by default heap arrays, stack arrays are now optional.
 
 
 -------------
@@ -45,6 +52,8 @@ General discussions reg. PolyBench.
 
 ::linear-algebra::
 linear-algebra/kernels:
+linear-algebra/kernels/2mm/2mm.c
+linear-algebra/kernels/3mm/3mm.c
 linear-algebra/kernels/atax/atax.c
 linear-algebra/kernels/bicg/bicg.c
 linear-algebra/kernels/cholesky/cholesky.c
@@ -128,7 +137,7 @@ They are all passed as macro definitions during compilation time (e.g,
 
 - POLYBENCH_CACHE_SIZE_KB: cache size to flush, in kB [default: 33MB]
 
-- POLYBENCH_HEAP_ARRAYS: use malloc instead of stack allocation [default: off]
+- POLYBENCH_STACK_ARRAYS: use stack allocation instead of malloc [default: off]
 
 - POLYBENCH_DUMP_ARRAYS: dump all live-out arrays on stderr [default: off]
 
@@ -200,9 +209,9 @@ $> for i in `cat utilities/benchmark_list`; do create_cpped_version.sh $i "$PARG
 This create for each benchmark file 'xxx.c' a new file
 'xxx.preproc.c'. The PARGS variable in the above example can be set to
 the desired configuration, for instance to create a full C99 version
-(parametric arrays) using the heap to allocate data:
+(parametric arrays):
 
-$> PARGS="-I utilities -DPOLYBENCH_HEAP_ARRAYS -DPOLYBENCH_USE_C99_PROTO";
+$> PARGS="-I utilities -DPOLYBENCH_USE_C99_PROTO";
 $> for i in `cat utilities/benchmark_list`; do ./utilities/create_cpped_version.sh "$i" "$PARGS"; done
 
 
