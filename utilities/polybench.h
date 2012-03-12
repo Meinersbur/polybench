@@ -40,7 +40,7 @@
 
 
 /* Scalar loop bounds in SCoPs. By default, use parametric loop bounds. */
-# ifdef POLYBENCH_SCALAR_LOOPBOUNDS
+# ifdef POLYBENCH_USE_SCALAR_LB
 #  define POLYBENCH_LOOP_BOUND(x,y) x
 # else
 /* default: */
