@@ -20,16 +20,17 @@
 
 /* Array initialization. */
 static
-void init_array (int nx,
+void init_array (int tmax,
+		 int nx,
 		 int ny,
 		 DATA_TYPE POLYBENCH_2D(ex,NX,NY,nx,ny),
 		 DATA_TYPE POLYBENCH_2D(ey,NX,NY,nx,ny),
 		 DATA_TYPE POLYBENCH_2D(hz,NX,NY,nx,ny),
-		 DATA_TYPE POLYBENCH_1D(_fict_,NY,ny))
+		 DATA_TYPE POLYBENCH_1D(_fict_,TMAX,tmax))
 {
   int i, j;
 
-  for (i = 0; i < ny; i++)
+  for (i = 0; i < tmax; i++)
     _fict_[i] = (DATA_TYPE) i;
   for (i = 0; i < nx; i++)
     for (j = 0; j < ny; j++)
@@ -72,7 +73,7 @@ void kernel_fdtd_2d(int tmax,
 		    DATA_TYPE POLYBENCH_2D(ex,NX,NY,nx,ny),
 		    DATA_TYPE POLYBENCH_2D(ey,NX,NY,nx,ny),
 		    DATA_TYPE POLYBENCH_2D(hz,NX,NY,nx,ny),
-		    DATA_TYPE POLYBENCH_1D(_fict_,NY,ny))
+		    DATA_TYPE POLYBENCH_1D(_fict_,TMAX,tmax))
 {
   int t, i, j;
 
@@ -109,10 +110,10 @@ int main(int argc, char** argv)
   POLYBENCH_2D_ARRAY_DECL(ex,DATA_TYPE,NX,NY,nx,ny);
   POLYBENCH_2D_ARRAY_DECL(ey,DATA_TYPE,NX,NY,nx,ny);
   POLYBENCH_2D_ARRAY_DECL(hz,DATA_TYPE,NX,NY,nx,ny);
-  POLYBENCH_1D_ARRAY_DECL(_fict_,DATA_TYPE,NY,ny);
+  POLYBENCH_1D_ARRAY_DECL(_fict_,DATA_TYPE,TMAX,tmax);
 
   /* Initialize array(s). */
-  init_array (nx, ny,
+  init_array (tmax, nx, ny,
 	      POLYBENCH_ARRAY(ex),
 	      POLYBENCH_ARRAY(ey),
 	      POLYBENCH_ARRAY(hz),

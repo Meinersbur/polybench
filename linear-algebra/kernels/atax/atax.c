@@ -57,15 +57,15 @@ static
 void kernel_atax(int nx, int ny,
 		 DATA_TYPE POLYBENCH_2D(A,NX,NY,nx,ny),
 		 DATA_TYPE POLYBENCH_1D(x,NY,ny),
-		 DATA_TYPE POLYBENCH_1D(y,NX,nx),
-		 DATA_TYPE POLYBENCH_1D(tmp,NY,ny))
+		 DATA_TYPE POLYBENCH_1D(y,NY,ny),
+		 DATA_TYPE POLYBENCH_1D(tmp,NX,nx))
 {
   int i, j;
 
 #pragma scop
   for (i= 0; i < nx; i++)
     y[i] = 0;
-  for (i = 0; i < ny; i++)
+  for (i = 0; i < nx; i++)
     {
       tmp[i] = 0;
       for (j = 0; j < ny; j++)
@@ -87,8 +87,8 @@ int main(int argc, char** argv)
   /* Variable declaration/allocation. */
   POLYBENCH_2D_ARRAY_DECL(A, DATA_TYPE, NX, NY, nx, ny);
   POLYBENCH_1D_ARRAY_DECL(x, DATA_TYPE, NY, ny);
-  POLYBENCH_1D_ARRAY_DECL(y, DATA_TYPE, NX, nx);
-  POLYBENCH_1D_ARRAY_DECL(tmp, DATA_TYPE, NY, ny);
+  POLYBENCH_1D_ARRAY_DECL(y, DATA_TYPE, NY, ny);
+  POLYBENCH_1D_ARRAY_DECL(tmp, DATA_TYPE, NX, nx);
 
   /* Initialize array(s). */
   init_array (nx, ny, POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(x));
