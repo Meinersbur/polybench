@@ -1,5 +1,5 @@
 /**
- * ludcmp.h: This file is part of the PolyBench 3.0 test suite.
+ * ludcmp.h: This file is part of the PolyBench/C 3.2 test suite.
  *
  *
  * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
@@ -37,6 +37,7 @@
 #  endif
 # endif /* !N */
 
+# define _PB_N POLYBENCH_LOOP_BOUND(N,n)
 
 # ifndef DATA_TYPE
 #  define DATA_TYPE double

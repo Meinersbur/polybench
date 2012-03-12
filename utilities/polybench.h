@@ -1,5 +1,5 @@
 /**
- * polybench.h: This file is part of the PolyBench 3.0 test suite.
+ * polybench.h: This file is part of the PolyBench/C 3.2 test suite.
  *
  *
  * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
@@ -36,6 +36,15 @@
 # else
 /* default: */
 #  define POLYBENCH_C99_SELECT(x,y) x
+# endif
+
+
+/* Scalar loop bounds in SCoPs. By default, use parametric loop bounds. */
+# ifdef POLYBENCH_SCALAR_LOOPBOUNDS
+#  define POLYBENCH_LOOP_BOUND(x,y) x
+# else
+/* default: */
+#  define POLYBENCH_LOOP_BOUND(x,y) y
 # endif
 
 

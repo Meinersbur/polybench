@@ -1,5 +1,5 @@
 /**
- * atax.h: This file is part of the PolyBench 3.0 test suite.
+ * atax.h: This file is part of the PolyBench/C 3.2 test suite.
  *
  *
  * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
@@ -42,6 +42,8 @@
 #  endif
 # endif /* !N */
 
+# define _PB_NX POLYBENCH_LOOP_BOUND(NX,nx)
+# define _PB_NY POLYBENCH_LOOP_BOUND(NY,ny)
 
 # ifndef DATA_TYPE
 #  define DATA_TYPE double

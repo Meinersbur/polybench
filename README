@@ -1,26 +1,38 @@
 * * * * * * * * * *
-* PolyBenchs 3.1  *
+* PolyBench/C 3.2 *
 * * * * * * * * * *
 
-Copyright (c) 2011 the Ohio State University.
+Copyright (c) 2011-2012 the Ohio State University.
 Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
+
+
+-------------
+* New in 3.2:
+-------------
+
+- Rename the package to PolyBench/C, to prepare for the upcoming
+  PolyBench/Fortran and PolyBench/GPU.
+- Fixed a typo in polybench.h, causing compilation problems for 5D arrays.
+- Fixed minor typos in correlation, atax, cholesky, fdtd-2d. 
+- Added an option to build the test suite with constant loop bounds
+  (default is parametric loop bounds)
 
 
 -------------
 * New in 3.1:
 -------------
 
-- fixed a typo in polybench.h, causing compilation problems for 3D arrays.
-- set by default heap arrays, stack arrays are now optional.
+- Fixed a typo in polybench.h, causing compilation problems for 3D arrays.
+- Set by default heap arrays, stack arrays are now optional.
 
 
 -------------
 * New in 3.0:
 -------------
 
-- multiple dataset sizes are predefined. Each file comes now with a .h
+- Multiple dataset sizes are predefined. Each file comes now with a .h
   header fiile defining the dataset.
-- support of heap-allocated arrays. It uses a single malloc for the
+- Support of heap-allocated arrays. It uses a single malloc for the
   entire array region, the data allocated is cast into a C99
   multidimensional array.
 - One benchmark is out: gauss_filter
@@ -149,6 +161,10 @@ They are all passed as macro definitions during compilation time (e.g,
 - MINI_DATASET, SMALL_DATASET, STANDARD_DATASET, LARGE_DATASET,
   EXTRALARGE_DATASET: set the dataset size to be used
   [default: STANDARD_DATASET]
+
+- POLYBENCH_USE_C99_PROTO: Use standard C99 prototype for the functions.
+
+- POLYBENCH_USE_SCALAR_LB: Use scalar loop bounds instead of parametric ones.
 
 
 

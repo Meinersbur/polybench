@@ -1,5 +1,5 @@
 /**
- * floyd-warshall.c: This file is part of the PolyBench 3.0 test suite.
+ * floyd-warshall.c: This file is part of the PolyBench/C 3.2 test suite.
  *
  *
  * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
@@ -58,10 +58,10 @@ void kernel_floyd_warshall(int n,
   int i, j, k;
 
 #pragma scop
-  for (k = 0; k < n; k++)
+  for (k = 0; k < _PB_N; k++)
     {
-      for(i = 0; i < n; i++)
-	for (j = 0; j < n; j++)
+      for(i = 0; i < _PB_N; i++)
+	for (j = 0; j < _PB_N; j++)
 	  path[i][j] = path[i][j] < path[i][k] + path[k][j] ?
 	    path[i][j] : path[i][k] + path[k][j];
     }

@@ -1,5 +1,5 @@
 /**
- * gramschmidt.h: This file is part of the PolyBench 3.0 test suite.
+ * gramschmidt.h: This file is part of the PolyBench/C 3.2 test suite.
  *
  *
  * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
@@ -42,6 +42,8 @@
 #  endif
 # endif /* !N */
 
+# define _PB_NI POLYBENCH_LOOP_BOUND(NI,ni)
+# define _PB_NJ POLYBENCH_LOOP_BOUND(NJ,nj)
 
 # ifndef DATA_TYPE
 #  define DATA_TYPE double

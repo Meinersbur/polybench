@@ -1,5 +1,5 @@
 /**
- * seidel-2d.c: This file is part of the PolyBench 3.0 test suite.
+ * seidel-2d.c: This file is part of the PolyBench/C 3.2 test suite.
  *
  *
  * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
@@ -59,9 +59,9 @@ void kernel_seidel_2d(int tsteps,
   int t, i, j;
 
 #pragma scop
-  for (t = 0; t <= tsteps - 1; t++)
-    for (i = 1; i<= n - 2; i++)
-      for (j = 1; j <= n - 2; j++)
+  for (t = 0; t <= _PB_TSTEPS - 1; t++)
+    for (i = 1; i<= _PB_N - 2; i++)
+      for (j = 1; j <= _PB_N - 2; j++)
 	A[i][j] = (A[i-1][j-1] + A[i-1][j] + A[i-1][j+1]
 		   + A[i][j-1] + A[i][j] + A[i][j+1]
 		   + A[i+1][j-1] + A[i+1][j] + A[i+1][j+1])/9.0;

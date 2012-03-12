@@ -1,5 +1,5 @@
 /**
- * template.c: This file is part of the PolyBench 3.0 test suite.
+ * template.c: This file is part of the PolyBench/C 3.2 test suite.
  *
  *
  * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
@@ -20,10 +20,10 @@
 
 /* Array initialization. */
 static
-void init_array(int n, DATA_TYPE POLYBENCH_2D(C,N,N))
+void init_array(int n, DATA_TYPE POLYBENCH_2D(C,N,N,n,n))
 {
   int i, j;
-  
+
   for (i = 0; i < n; i++)
     for (j = 0; j < n; j++)
       C[i][j] = 42;
@@ -33,7 +33,7 @@ void init_array(int n, DATA_TYPE POLYBENCH_2D(C,N,N))
 /* DCE code. Must scan the entire live-out data.
    Can be used also to check the correctness of the output. */
 static
-void print_array(int n, DATA_TYPE POLYBENCH_2D(C,N,N))
+void print_array(int n, DATA_TYPE POLYBENCH_2D(C,N,N,n,n))
 {
   int i, j;
 
@@ -49,13 +49,13 @@ void print_array(int n, DATA_TYPE POLYBENCH_2D(C,N,N))
 /* Main computational kernel. The whole function will be timed,
    including the call and return. */
 static
-void kernel_template(int n, DATA_TYPE POLYBENCH_2D(C,N,N))
+void kernel_template(int n, DATA_TYPE POLYBENCH_2D(C,N,N,n,n))
 {
   int i, j;
 
 #pragma scop
-  for (i = 0; i < n; i++)
-    for (j = 0; j < n; j++)
+  for (i = 0; i < _PB_N; i++)
+    for (j = 0; j < _PB_N; j++)
       C[i][j] += 42;
 #pragma endscop
 
@@ -68,14 +68,7 @@ int main(int argc, char** argv)
   int n = N;
 
   /* Variable declaration/allocation. */
-#ifdef POLYBENCH_HEAP_ARRAYS
-  /* Heap arrays use variable 'n' for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(C, n, n);
-  C = POLYBENCH_ALLOC_2D_ARRAY(n, n, DATA_TYPE);
-#else
-  /* Stack arrays use the numerical value 'N' for the size. */
-  DATA_TYPE POLYBENCH_2D_ARRAY_DECL(C,N,N);
-#endif
+  POLYBENCH_2D_ARRAY_DECL(C,DATA_TYPE,N,N,n,n);
 
   /* Initialize array(s). */
   init_array (n, POLYBENCH_ARRAY(C));

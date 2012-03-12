@@ -1,5 +1,5 @@
 /**
- * fdtd-apml.h: This file is part of the PolyBench 3.0 test suite.
+ * fdtd-apml.h: This file is part of the PolyBench/C 3.2 test suite.
  *
  *
  * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
@@ -32,9 +32,6 @@
 #   define CZ 256
 #   define CYM 256
 #   define CXM 256
-/* #   define CZ 256 */
-/* #   define CYM 256 */
-/* #   define CXM 256 */
 #  endif
 
 #  ifdef LARGE_DATASET
@@ -50,6 +47,9 @@
 #  endif
 # endif /* !N */
 
+# define _PB_CZ POLYBENCH_LOOP_BOUND(CZ,cz)
+# define _PB_CYM POLYBENCH_LOOP_BOUND(CYM,cym)
+# define _PB_CXM POLYBENCH_LOOP_BOUND(CXM,cxm)
 
 # ifndef DATA_TYPE
 #  define DATA_TYPE double

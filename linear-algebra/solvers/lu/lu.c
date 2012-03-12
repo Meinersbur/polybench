@@ -1,5 +1,5 @@
 /**
- * lu.c: This file is part of the PolyBench 3.0 test suite.
+ * lu.c: This file is part of the PolyBench/C 3.2 test suite.
  *
  *
  * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
@@ -58,12 +58,12 @@ void kernel_lu(int n,
   int i, j, k;
 
 #pragma scop
-  for (k = 0; k < n; k++)
+  for (k = 0; k < _PB_N; k++)
     {
-      for (j = k + 1; j < n; j++)
+      for (j = k + 1; j < _PB_N; j++)
 	A[k][j] = A[k][j] / A[k][k];
-      for(i = k + 1; i < n; i++)
-	for (j = k + 1; j < n; j++)
+      for(i = k + 1; i < _PB_N; i++)
+	for (j = k + 1; j < _PB_N; j++)
 	  A[i][j] = A[i][j] - A[i][k] * A[k][j];
     }
 #pragma endscop

@@ -1,5 +1,5 @@
 /**
- * symm.c: This file is part of the PolyBench 3.0 test suite.
+ * symm.c: This file is part of the PolyBench/C 3.2 test suite.
  *
  *
  * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
@@ -74,8 +74,8 @@ void kernel_symm(int ni, int nj,
 
 #pragma scop
   /*  C := alpha*A*B + beta*C, A is symetric */
-  for (i = 0; i < ni; i++)
-    for (j = 0; j < nj; j++)
+  for (i = 0; i < _PB_NI; i++)
+    for (j = 0; j < _PB_NJ; j++)
       {
 	acc = 0;
 	for (k = 0; k < j - 1; k++)

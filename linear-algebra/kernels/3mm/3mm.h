@@ -1,5 +1,5 @@
 /**
- * 3mm.h: This file is part of the PolyBench 3.0 test suite.
+ * 3mm.h: This file is part of the PolyBench/C 3.2 test suite.
  *
  *
  * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
@@ -57,6 +57,11 @@
 #  endif
 # endif /* !N */
 
+# define _PB_NI POLYBENCH_LOOP_BOUND(NI,ni)
+# define _PB_NJ POLYBENCH_LOOP_BOUND(NJ,nj)
+# define _PB_NK POLYBENCH_LOOP_BOUND(NK,nk)
+# define _PB_NL POLYBENCH_LOOP_BOUND(NL,nl)
+# define _PB_NM POLYBENCH_LOOP_BOUND(NM,nm)
 
 # ifndef DATA_TYPE
 #  define DATA_TYPE double

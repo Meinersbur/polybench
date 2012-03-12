@@ -1,5 +1,5 @@
 /**
- * durbin.c: This file is part of the PolyBench 3.0 test suite.
+ * durbin.c: This file is part of the PolyBench/C 3.2 test suite.
  *
  *
  * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
@@ -75,7 +75,7 @@ void kernel_durbin(int n,
   y[0][0] = r[0];
   beta[0] = 1;
   alpha[0] = r[0];
-  for (k = 1; k < n; k++)
+  for (k = 1; k < _PB_N; k++)
     {
       beta[k] = beta[k-1] - alpha[k-1] * alpha[k-1] * beta[k-1];
       sum[0][k] = r[k];
@@ -86,8 +86,8 @@ void kernel_durbin(int n,
 	y[i][k] = y[i][k-1] + alpha[k] * y[k-i-1][k-1];
       y[k][k] = alpha[k];
     }
-  for (i = 0; i < n; i++)
-    out[i] = y[i][N-1];
+  for (i = 0; i < _PB_N; i++)
+    out[i] = y[i][_PB_N-1];
 #pragma endscop
 
 }

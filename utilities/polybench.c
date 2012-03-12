@@ -1,5 +1,5 @@
 /**
- * polybench.c: This file is part of the PolyBench 3.0 test suite.
+ * polybench.c: This file is part of the PolyBench/C 3.2 test suite.
  *
  *
  * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>

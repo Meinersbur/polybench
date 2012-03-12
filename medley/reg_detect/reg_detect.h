@@ -1,5 +1,5 @@
 /**
- * reg_detect.h: This file is part of the PolyBench 3.0 test suite.
+ * reg_detect.h: This file is part of the PolyBench/C 3.2 test suite.
  *
  *
  * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
@@ -47,6 +47,9 @@
 #  endif
 # endif /* !N */
 
+# define _PB_NITER POLYBENCH_LOOP_BOUND(NITER,niter)
+# define _PB_LENGTH POLYBENCH_LOOP_BOUND(LENGTH,length)
+# define _PB_MAXGRID POLYBENCH_LOOP_BOUND(MAXGRID,maxgrid)
 
 # ifndef DATA_TYPE
 #  define DATA_TYPE int

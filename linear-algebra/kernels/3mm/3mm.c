@@ -1,5 +1,5 @@
 /**
- * 3mm.c: This file is part of the PolyBench 3.0 test suite.
+ * 3mm.c: This file is part of the PolyBench/C 3.2 test suite.
  *
  *
  * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
@@ -76,27 +76,27 @@ void kernel_3mm(int ni, int nj, int nk, int nl, int nm,
 
 #pragma scop
   /* E := A*B */
-  for (i = 0; i < ni; i++)
-    for (j = 0; j < nj; j++)
+  for (i = 0; i < _PB_NI; i++)
+    for (j = 0; j < _PB_NJ; j++)
       {
 	E[i][j] = 0;
-	for (k = 0; k < nk; ++k)
+	for (k = 0; k < _PB_NK; ++k)
 	  E[i][j] += A[i][k] * B[k][j];
       }
   /* F := C*D */
-  for (i = 0; i < nj; i++)
-    for (j = 0; j < nl; j++)
+  for (i = 0; i < _PB_NJ; i++)
+    for (j = 0; j < _PB_NL; j++)
       {
 	F[i][j] = 0;
-	for (k = 0; k < nm; ++k)
+	for (k = 0; k < _PB_NM; ++k)
 	  F[i][j] += C[i][k] * D[k][j];
       }
   /* G := E*F */
-  for (i = 0; i < ni; i++)
-    for (j = 0; j < nl; j++)
+  for (i = 0; i < _PB_NI; i++)
+    for (j = 0; j < _PB_NL; j++)
       {
 	G[i][j] = 0;
-	for (k = 0; k < nj; ++k)
+	for (k = 0; k < _PB_NJ; ++k)
 	  G[i][j] += E[i][k] * F[k][j];
       }
 #pragma endscop

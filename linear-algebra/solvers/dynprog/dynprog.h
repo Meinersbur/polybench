@@ -1,5 +1,5 @@
 /**
- * dynprog.h: This file is part of the PolyBench 3.0 test suite.
+ * dynprog.h: This file is part of the PolyBench/C 3.2 test suite.
  *
  *
  * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
@@ -42,6 +42,8 @@
 #  endif
 # endif /* !N */
 
+# define _PB_TSTEPS POLYBENCH_LOOP_BOUND(TSTEPS,tsteps)
+# define _PB_LENGTH POLYBENCH_LOOP_BOUND(LENGTH,length)
 
 # ifndef DATA_TYPE
 #  define DATA_TYPE int

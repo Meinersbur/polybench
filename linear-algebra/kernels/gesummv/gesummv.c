@@ -1,5 +1,5 @@
 /**
- * gesummv.c: This file is part of the PolyBench 3.0 test suite.
+ * gesummv.c: This file is part of the PolyBench/C 3.2 test suite.
  *
  *
  * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
@@ -73,11 +73,11 @@ void kernel_gesummv(int n,
   int i, j;
 
 #pragma scop
-  for (i = 0; i < n; i++)
+  for (i = 0; i < _PB_N; i++)
     {
       tmp[i] = 0;
       y[i] = 0;
-      for (j = 0; j < n; j++)
+      for (j = 0; j < _PB_N; j++)
 	{
 	  tmp[i] = A[i][j] * x[j] + tmp[i];
 	  y[i] = B[i][j] * x[j] + y[i];

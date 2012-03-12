@@ -1,5 +1,5 @@
 /**
- * adi.c: This file is part of the PolyBench 3.0 test suite.
+ * adi.c: This file is part of the PolyBench/C 3.2 test suite.
  *
  *
  * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
@@ -67,34 +67,34 @@ void kernel_adi(int tsteps,
   int t, i1, i2;
 
 #pragma scop
-  for (t = 0; t < tsteps; t++)
+  for (t = 0; t < _PB_TSTEPS; t++)
     {
-      for (i1 = 0; i1 < n; i1++)
-	for (i2 = 1; i2 < n; i2++)
+      for (i1 = 0; i1 < _PB_N; i1++)
+	for (i2 = 1; i2 < _PB_N; i2++)
 	  {
 	    X[i1][i2] = X[i1][i2] - X[i1][i2-1] * A[i1][i2] / B[i1][i2-1];
 	    B[i1][i2] = B[i1][i2] - A[i1][i2] * A[i1][i2] / B[i1][i2-1];
 	  }
 
-      for (i1 = 0; i1 < n; i1++)
-	X[i1][n-1] = X[i1][n-1] / B[i1][n-1];
+      for (i1 = 0; i1 < _PB_N; i1++)
+	X[i1][_PB_N-1] = X[i1][_PB_N-1] / B[i1][_PB_N-1];
 
-      for (i1 = 0; i1 < n; i1++)
-	for (i2 = 0; i2 < n-2; i2++)
-	  X[i1][n-i2-2] = (X[i1][n-2-i2] - X[i1][n-2-i2-1] * A[i1][n-i2-3]) / B[i1][n-3-i2];
+      for (i1 = 0; i1 < _PB_N; i1++)
+	for (i2 = 0; i2 < _PB_N-2; i2++)
+	  X[i1][_PB_N-i2-2] = (X[i1][_PB_N-2-i2] - X[i1][_PB_N-2-i2-1] * A[i1][_PB_N-i2-3]) / B[i1][_PB_N-3-i2];
 
-      for (i1 = 1; i1 < n; i1++)
-	for (i2 = 0; i2 < n; i2++) {
+      for (i1 = 1; i1 < _PB_N; i1++)
+	for (i2 = 0; i2 < _PB_N; i2++) {
 	  X[i1][i2] = X[i1][i2] - X[i1-1][i2] * A[i1][i2] / B[i1-1][i2];
 	  B[i1][i2] = B[i1][i2] - A[i1][i2] * A[i1][i2] / B[i1-1][i2];
 	}
 
-      for (i2 = 0; i2 < n; i2++)
-	X[n-1][i2] = X[n-1][i2] / B[n-1][i2];
+      for (i2 = 0; i2 < _PB_N; i2++)
+	X[_PB_N-1][i2] = X[_PB_N-1][i2] / B[_PB_N-1][i2];
 
-      for (i1 = 0; i1 < n-2; i1++)
-	for (i2 = 0; i2 < n; i2++)
-	  X[n-2-i1][i2] = (X[n-2-i1][i2] - X[n-i1-3][i2] * A[n-3-i1][i2]) / B[n-2-i1][i2];
+      for (i1 = 0; i1 < _PB_N-2; i1++)
+	for (i2 = 0; i2 < _PB_N; i2++)
+	  X[_PB_N-2-i1][i2] = (X[_PB_N-2-i1][i2] - X[_PB_N-i1-3][i2] * A[_PB_N-3-i1][i2]) / B[_PB_N-2-i1][i2];
     }
 #pragma endscop
 
@@ -120,7 +120,7 @@ int main(int argc, char** argv)
   polybench_start_instruments;
 
   /* Run kernel. */
-  kernel_adi (tsteps, n, POLYBENCH_ARRAY(X), 
+  kernel_adi (tsteps, n, POLYBENCH_ARRAY(X),
 	      POLYBENCH_ARRAY(A), POLYBENCH_ARRAY(B));
 
   /* Stop and print timer. */

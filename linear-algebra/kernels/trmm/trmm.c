@@ -1,5 +1,5 @@
 /**
- * trmm.c: This file is part of the PolyBench 3.0 test suite.
+ * trmm.c: This file is part of the PolyBench/C 3.2 test suite.
  *
  *
  * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
@@ -65,8 +65,8 @@ void kernel_trmm(int ni,
 
 #pragma scop
   /*  B := alpha*A'*B, A triangular */
-  for (i = 1; i < ni; i++)
-    for (j = 0; j < ni; j++)
+  for (i = 1; i < _PB_NI; i++)
+    for (j = 0; j < _PB_NI; j++)
       for (k = 0; k < i; k++)
         B[i][j] += alpha * A[i][k] * B[j][k];
 #pragma endscop

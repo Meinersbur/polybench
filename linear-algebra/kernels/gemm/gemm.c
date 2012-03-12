@@ -1,5 +1,5 @@
 /**
- * gemm.c: This file is part of the PolyBench 3.0 test suite.
+ * gemm.c: This file is part of the PolyBench/C 3.2 test suite.
  *
  *
  * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
@@ -74,11 +74,11 @@ void kernel_gemm(int ni, int nj, int nk,
 
 #pragma scop
   /* C := alpha*A*B + beta*C */
-  for (i = 0; i < ni; i++)
-    for (j = 0; j < nj; j++)
+  for (i = 0; i < _PB_NI; i++)
+    for (j = 0; j < _PB_NJ; j++)
       {
 	C[i][j] *= beta;
-	for (k = 0; k < nk; ++k)
+	for (k = 0; k < _PB_NK; ++k)
 	  C[i][j] += alpha * A[i][k] * B[k][j];
       }
 #pragma endscop

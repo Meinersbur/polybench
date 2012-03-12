@@ -1,5 +1,5 @@
 /**
- * jacobi-1d-imper.c: This file is part of the PolyBench 3.0 test suite.
+ * jacobi-1d-imper.c: This file is part of the PolyBench/C 3.2 test suite.
  *
  *
  * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
@@ -63,11 +63,11 @@ void kernel_jacobi_1d_imper(int tsteps,
   int t, i, j;
 
 #pragma scop
-  for (t = 0; t < tsteps; t++)
+  for (t = 0; t < _PB_TSTEPS; t++)
     {
-      for (i = 1; i < n - 1; i++)
+      for (i = 1; i < _PB_N - 1; i++)
 	B[i] = 0.33333 * (A[i-1] + A[i] + A[i + 1]);
-      for (j = 1; j < n - 1; j++)
+      for (j = 1; j < _PB_N - 1; j++)
 	A[j] = B[j];
     }
 #pragma endscop

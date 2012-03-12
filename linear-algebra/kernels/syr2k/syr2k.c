@@ -1,5 +1,5 @@
 /**
- * syr2k.c: This file is part of the PolyBench 3.0 test suite.
+ * syr2k.c: This file is part of the PolyBench/C 3.2 test suite.
  *
  *
  * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
@@ -73,12 +73,12 @@ void kernel_syr2k(int ni, int nj,
 
 #pragma scop
   /*    C := alpha*A*B' + alpha*B*A' + beta*C */
-  for (i = 0; i < ni; i++)
-    for (j = 0; j < ni; j++)
+  for (i = 0; i < _PB_NI; i++)
+    for (j = 0; j < _PB_NI; j++)
       C[i][j] *= beta;
-  for (i = 0; i < ni; i++)
-    for (j = 0; j < ni; j++)
-      for (k = 0; k < nj; k++)
+  for (i = 0; i < _PB_NI; i++)
+    for (j = 0; j < _PB_NI; j++)
+      for (k = 0; k < _PB_NJ; k++)
 	{
 	  C[i][j] += alpha * A[i][k] * B[j][k];
 	  C[i][j] += alpha * B[i][k] * A[j][k];

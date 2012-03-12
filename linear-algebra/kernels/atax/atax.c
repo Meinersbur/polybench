@@ -1,5 +1,5 @@
 /**
- * atax.c: This file is part of the PolyBench 3.0 test suite.
+ * atax.c: This file is part of the PolyBench/C 3.2 test suite.
  *
  *
  * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
@@ -63,14 +63,14 @@ void kernel_atax(int nx, int ny,
   int i, j;
 
 #pragma scop
-  for (i= 0; i < nx; i++)
+  for (i = 0; i < _PB_NY; i++)
     y[i] = 0;
-  for (i = 0; i < nx; i++)
+  for (i = 0; i < _PB_NX; i++)
     {
       tmp[i] = 0;
-      for (j = 0; j < ny; j++)
+      for (j = 0; j < _PB_NY; j++)
 	tmp[i] = tmp[i] + A[i][j] * x[j];
-      for (j = 0; j < ny; j++)
+      for (j = 0; j < _PB_NY; j++)
 	y[j] = y[j] + A[i][j] * tmp[i];
     }
 #pragma endscop
