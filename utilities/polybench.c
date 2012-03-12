@@ -392,9 +392,12 @@ xmalloc (size_t num)
 }
 
 
-void* polybench_alloc_data(int n, int elt_size)
+void* polybench_alloc_data(unsigned long long int n, int elt_size)
 {
-  void* ret = xmalloc (n * elt_size);
+  /// FIXME: detect overflow!
+  size_t val = n;
+  val *= elt_size;
+  void* ret = xmalloc (val);
 
   return ret;
 }
