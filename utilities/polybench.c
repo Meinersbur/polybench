@@ -68,20 +68,19 @@ double rtclock()
 }
 
 
+#ifdef POLYBENCH_CYCLE_ACCURATE_TIMER
 static
 unsigned long long int rdtsc()
 {
   unsigned long long int ret = 0;
   unsigned int cycles_lo;
   unsigned int cycles_hi;
-
-#ifdef POLYBENCH_CYCLE_ACCURATE_TIMER
   __asm__ volatile ("RDTSC" : "=a" (cycles_lo), "=d" (cycles_hi));
   ret = (unsigned long long int)cycles_hi << 32 | cycles_lo;
-#endif
 
   return ret;
 }
+#endif
 
 void polybench_flush_cache()
 {

@@ -13,7 +13,7 @@ Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
 - Rename the package to PolyBench/C, to prepare for the upcoming
   PolyBench/Fortran and PolyBench/GPU.
 - Fixed a typo in polybench.h, causing compilation problems for 5D arrays.
-- Fixed minor typos in correlation, atax, cholesky, fdtd-2d. 
+- Fixed minor typos in correlation, atax, cholesky, fdtd-2d.
 - Added an option to build the test suite with constant loop bounds
   (default is parametric loop bounds)
 
@@ -31,7 +31,7 @@ Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
 -------------
 
 - Multiple dataset sizes are predefined. Each file comes now with a .h
-  header fiile defining the dataset.
+  header file defining the dataset.
 - Support of heap-allocated arrays. It uses a single malloc for the
   entire array region, the data allocated is cast into a C99
   multidimensional array.
@@ -205,7 +205,7 @@ $> ./utilities/time_benchmark.sh ./atax_time
 This script will run five times the benchmark (that must be a
 PolyBench compiled with -DPOLYBENCH_TIME), eliminate the two extremal
 times, and check that the deviation of the three remaining does not
-exceed a given thresold, set to 5%.
+exceed a given threshold, set to 5%.
 
 It is also possible to use POLYBENCH_CYCLE_ACCURATE_TIMER to use the
 Time Stamp Counter instead of gettimeofday() to monitor the number of
