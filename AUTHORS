@@ -8,7 +8,7 @@
   the PolyBench infrastructure and machinery, and several
   reference C files.
 
-* Uday Bondugula <Uday Bondhugula <ubondhug@us.ibm.com>
+* Uday Bondugula <uday@csa.iisc.ernet.in>
   Who provided many of the original reference C files, including
   Fortran to C translation.
 
