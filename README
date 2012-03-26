@@ -224,3 +224,16 @@ $> PARGS="-I utilities -DPOLYBENCH_STACK_ARRAYS -DPOLYBENCH_USE_SCALAR_LB -DLARG
 $> for i in `cat utilities/benchmark_list`; do ./utilities/create_pped_version.sh "$i" "$PARGS"; done
 
 
+
+
+----------------------------------------
+* Acknowledgements:
+----------------------------------------
+
+This software was produced with support from the Department of Energy's
+Office of Advanced Scientific Computing under grant DE-SC0005033 and by the
+National Science Foundation under grant CCF-0811781. Nothing in this work
+should be construed as reflecting the official policy or position of the
+Department of Energy, the National Science Foundation, the United States
+government, or the Ohio State University.
+
