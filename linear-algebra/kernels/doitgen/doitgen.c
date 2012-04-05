@@ -72,7 +72,7 @@ void kernel_doitgen(int nr, int nq, int np,
 	for (s = 0; s < _PB_NP; s++)
 	  sum[r][q][p] = sum[r][q][p] + A[r][q][s] * C4[s][p];
       }
-      for (p = 0; p < _PB_NR; p++)
+      for (p = 0; p < _PB_NP; p++)
 	A[r][q][p] = sum[r][q][p];
     }
 #pragma endscop
