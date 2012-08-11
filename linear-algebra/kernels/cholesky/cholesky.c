@@ -30,8 +30,25 @@ void init_array(int n,
     {
       p[i] = 1.0 / n;
       for (j = 0; j < n; j++)
-	A[i][j] = 1.0 / n;
+	A[i][j] = -j * 1.0;
+      A[i][i] = n - 1;
     }
+
+  /* Make the matrix positive semi-definite. */
+  int r,s,t;
+  POLYBENCH_2D_ARRAY_DECL(B, DATA_TYPE, N, N, n, n);
+  for (r = 0; r < n; ++r)
+    for (s = 0; s < n; ++s)
+      (POLYBENCH_ARRAY(B))[r][s] = 0;
+  for (t = 0; t < n; ++t)
+    for (r = 0; r < n; ++r)
+      for (s = 0; s < n; ++s)
+	(POLYBENCH_ARRAY(B))[r][s] += A[t][r] * A[t][s];
+    for (r = 0; r < n; ++r)
+      for (s = 0; s < n; ++s)
+	A[r][s] = (POLYBENCH_ARRAY(B))[r][s];
+  POLYBENCH_FREE_ARRAY(B);
+
 }
 
 
