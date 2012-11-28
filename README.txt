@@ -11,8 +11,7 @@ Contact:  Scott Grauer-Gray <sgrauerg@gmail.com>
 If using this work, please cite the following paper: 
 Scott Grauer-Gray, Lifan Xu, Robert Searles, Sudhee Ayalasomayajula, and John Cavazos.  
 Auto-tuning a High-Level Language Targeted to GPU Codes. 
-To Appear In Proceedings of Innovative Parallel Computing 
-(InPar '12), 2012.
+Proceedings of Innovative Parallel Computing (InPar '12), 2012.
 
 Paper available at http://www.eecis.udel.edu/~grauerg/
 
@@ -118,8 +117,7 @@ Web address: http://www.cse.ohio-state.edu/~pouchet/software/polybench/GPU
 
 Scott Grauer-Gray, Lifan Xu, Robert Searles, Sudhee Ayalasomayajula, and John Cavazos.  
 Auto-tuning a High-Level Language Targeted to GPU Codes. 
-To Appear In Proceedings of Innovative Parallel Computing 
-(InPar '12), 2012.
+Proceedings of Innovative Parallel Computing (InPar '12), 2012.
 
 
 Codes are based on PolyBench codes which are able to be parallelized on the GPU; 
