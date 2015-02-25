@@ -390,7 +390,7 @@ It takes the following as input,
 and gives the following as outputs:
 \begin{itemize}
 \item {\tt Q}: $M\times N$ orthogonal matrix
-\item {\tt R}: $N\times N$ upper tiangular matrix
+\item {\tt R}: $N\times N$ upper triangular matrix
 \end{itemize}
 such that $A = QR$.
 
@@ -520,7 +520,7 @@ and gives the following as output:
 \item {\tt paths}: $N\times N$ matrix, where the $i,j$th entry represents the shortest path length from $i$ to $j$.
 \end{itemize}
 
-The shortest path lengths are computed recusrively as follows:
+The shortest path lengths are computed recursively as follows:
 \[\mathtt{p}(k,i,j) = \begin{cases}
  k=-1 & : \mathtt{w}(i,j) \\
  0\le k < N & : min(\mathtt{p}(k-1,i,j), \mathtt{p}(k-1,i,k) + \mathtt{p}(k-1,k,j)
@@ -581,7 +581,7 @@ and splitting it two two steps:
  \[\mathtt{u}^{t+1} = h\left( \mathtt{u}^{t+\frac{1}{2}}_{i,j+1}, \mathtt{u}^{t+\frac{1}{2}}_{i,j}, \mathtt{u}^{t+\frac{1}{2}}_{i,j-1} \right)\]
 
 
-The C reference implementation is based on a Fortlan code in a paper by Li and
+The C reference implementation is based on a Fortran code in a paper by Li and
 Kedem~\cite{lee2002automatic}.  In this implementation, the coefficients are
 also computed since the parameters configure the resolution and not the size of
 the space/time domain.
@@ -589,7 +589,7 @@ the space/time domain.
 
 \kernel{fdtd-2d}
 Simplified Finite-Difference Time-Domain method for 2D data, which models
-electric and mangetic fields based on Maxwell's equations. In particular,
+electric and magnetic fields based on Maxwell's equations. In particular,
 the polarization used here is $TE^z$; Transverse Electric in $z$ direction.
 It is a stencil involving three variables, {\tt Ex}, {\tt Ey}, and {\tt Hz}.
 {\tt Ex} and {\tt Ey} are electric fields varying in $x$ and $y$ axes, where
@@ -603,7 +603,7 @@ either zero or static, and are not modeled.
 \end{align*}
 
 Variables $C_{xxx}$ are coefficients that may be different depending on the
-location within the descritized space.  In PolyBench, it is simplified as
+location within the descretized space.  In PolyBench, it is simplified as
 scalar coefficients.
 
 \kernel{heat-3d}
@@ -679,7 +679,11 @@ Most dense linear algebra kernels performs in-place computation when applicable.
 \subsection*{Known Issues}
 \begin{itemize}
 \item {\tt correlation} output is all 1 due to the property of correlation
-combined with the input generation.
+combined with the input generation. (Values become very regular since they are
+computed as a function of loop indices.)
+\item {\tt gramschmidt} large part of the output matrix $R$ become 0 (even
+considering it is triangular). The output can contain NaN, which also has to do
+with how the inputs are generated.
 \end{itemize}
 
 \subsection*{Pre-defined Problem Sizes}
