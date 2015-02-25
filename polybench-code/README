@@ -1,10 +1,84 @@
 * * * * * * * * * *
-* PolyBench/C 3.2 *
+* PolyBench/C 4.0 *
 * * * * * * * * * *
 
-Copyright (c) 2011-2012 the Ohio State University.
-Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
+Copyright (c) 2011-2015 the Ohio State University.
 
+Contact:
+   Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
+   Tomofumi Yuki <tomofumi.yuki@inria.fr>
+
+-------------
+* New in 4.0:
+-------------
+
+
+This update includes many changes. Please see CHANGELOG for detailed list of changes.
+
+=Important Note=
+ We found a number of bugs in PolyBench kernels that cause the implementation
+to produce outputs that do not match what is expected from the mathematical
+specification. Many of them did not influence the program behavior in an
+important way (e.g., the bug in covariance was simply a missing division in the
+end, which does not influence dependences or the shape of the iteration space).
+However, some had non-negligible impact. These kernels are described below.
+
+ - adi: There was an off-by-one error, which made back substitution part of a pass in ADI to not
+   depend on the forward pass, making the program fully tilable.
+ - syrk: There was a typo on the loop bounds that made the iteration space
+   rectangular where it should have been triangular. This has led to additional
+   dependences and two times more operations than intended.
+ - trmm: There was a typo on the loop bounds so that the wrong half of the
+   matrix was used in the computation. This led to additional dependences,
+   making it harder to parallelize this kernel.
+ - lu: An innermost loop was missing. This cause the kernel to perform about half the work
+   compared to a correct implementation of LU decomposition. It is unclear if
+   the original code was intended for input matrices with specific
+   characteristics. The new implementation is the generic LU decomposition.
+
+In addition, some of the kernels used "unnatural" memory allocation, where
+variables used in accumulation were fully expanded. These variables were changed to 
+only use a scalar, making some of the kernels more challenging.
+
+=Summary of Changes=
+-Fixed out-of-bounds issue in covariance and 2mm
+ (Reported by Tobias Grosser)
+-Fixed a bug in polybench.h when 4D arrays were allocated.
+ (Reported by Amarin Phaosawasdi)
+-Changed naming of a variable in polybench.c/xmalloc to avoid issues when compiled as C++.
+ (Reported by Sven Verdoolaege)
+-Added POLYBENCH_USE_RESTRICT to allow compilers to assume alias-free.
+ (Patch by Tobias Grosser)
+-Added SCALAR_VAL, SQRT_FUN, EXP_FUN, and POW_FUN macros to switch
+ float/double versions of the math functions depending on the data type.
+
+-Removed dynprog. (Replaced by nussinov)
+-Added nussinov; a dynamic programming algorithm for sequence alignment.
+ (Code by Dave Wonnacott and his students) 
+-Removed reg_detect. (Replaced by deriche)
+-Added deriche; edge detector filter.
+ (Code by Gael Deest)
+-Removed fdtd-apml. (Replaced by heat-3d)
+-Added heat-3d; heat equation over 3D data domain.
+ (Original specification from Pochoir compiler test case)
+-Changed jacobi-1d-imper and jacobi-2d-imper to jacobi-1d and jacobi-2d, respectively.
+-jacobi-1d, jacobi-2d, and heat-3d performs two time steps using alternating
+ arrays per an iteration of the outermost loop. This is to avoid the copy loop
+ in the old xxx-imper versions. The number of stencil iterations are now
+ restricted to be even numbers (2x of the parameter TSTEPS).
+
+-The following kernels have been modified (bug fixes):
+  adi, durbin, lu, ludcmp, syrk, trmm, cholesky, covariance, correlation
+
+-BLAS kernels are now commented with the parameters in original BLAS
+ which corresponds to the implementation in PolyBench.
+-BLAS kernels now closely matches the original version. However, gemver and
+ gesummv remains the same as it is not part of current BLAS.
+-Tuned the initialization functions to reduce the possibility to have 'inf'
+ in outputs. Specifically, the initial values are much closer to 1 for most
+ linear algebra kernels now (was up to N in prior versions).
+
+-Added polybench.pdf that explains each kernel in detail.
 
 -------------
 * New in 3.2:
@@ -62,47 +136,8 @@ General discussions reg. PolyBench.
 * Available benchmarks:
 -----------------------
 
-::linear-algebra::
-linear-algebra/kernels:
-linear-algebra/kernels/2mm/2mm.c
-linear-algebra/kernels/3mm/3mm.c
-linear-algebra/kernels/atax/atax.c
-linear-algebra/kernels/bicg/bicg.c
-linear-algebra/kernels/cholesky/cholesky.c
-linear-algebra/kernels/doitgen/doitgen.c
-linear-algebra/kernels/gemm/gemm.c
-linear-algebra/kernels/gemver/gemver.c
-linear-algebra/kernels/gesummv/gesummv.c
-linear-algebra/kernels/mvt/mvt.c
-linear-algebra/kernels/symm/symm.c
-linear-algebra/kernels/syr2k/syr2k.c
-linear-algebra/kernels/syrk/syrk.c
-linear-algebra/kernels/trisolv/trisolv.c
-linear-algebra/kernels/trmm/trmm.c
-
-linear-algebra/solvers:
-linear-algebra/solvers/durbin/durbin.c
-linear-algebra/solvers/dynprog/dynprog.c
-linear-algebra/solvers/gramschmidt/gramschmidt.c
-linear-algebra/solvers/lu/lu.c
-linear-algebra/solvers/ludcmp/ludcmp.c
-
-::datamining::
-datamining/correlation/correlation.c
-datamining/covariance/covariance.c
-
-::medley::
-medley/floyd-warshall/floyd-warshall.c
-medley/reg_detect/reg_detect.c
-
-::stencils::
-stencils/adi/adi.c
-stencils/fdtd-2d/fdtd-2d.c
-stencils/fdtd-apml/fdtd-apml.c
-stencils/jacobi-1d-imper/jacobi-1d-imper.c
-stencils/jacobi-2d-imper/jacobi-2d-imper.c
-stencils/seidel-2d/seidel-2d.c
-
+See utilities/benchmark_list for paths to each files.
+See doc/polybench.pdf for detailed description of the algorithms.
 
 
 ------------------------------
@@ -166,7 +201,7 @@ They are all passed as macro definitions during compilation time (e.g,
 
 - POLYBENCH_USE_SCALAR_LB: Use scalar loop bounds instead of parametric ones.
 
-
+- POLYBENCH_USE_RESTRICT: Use restrict keyword to allow compilers to assume absense of aliasing.
 
 ---------------
 * PAPI support:
@@ -220,7 +255,7 @@ elapsed cycles.
 
 (from the root of the archive:)
 $> PARGS="-I utilities -DPOLYBENCH_TIME";
-$> for i in `cat utilities/benchmark_list`; do create_cpped_version.sh $i "$PARGS"; done
+$> for i in `cat utilities/benchmark_list`; do perl utilities/create_cpped_version.pl $i "$PARGS"; done
 
 This create for each benchmark file 'xxx.c' a new file
 'xxx.preproc.c'. The PARGS variable in the above example can be set to
@@ -228,6 +263,20 @@ the desired configuration, for instance to create a full C99 version
 (parametric arrays):
 
 $> PARGS="-I utilities -DPOLYBENCH_USE_C99_PROTO";
-$> for i in `cat utilities/benchmark_list`; do ./utilities/create_cpped_version.sh "$i" "$PARGS"; done
+$> for i in `cat utilities/benchmark_list`; do perl utilities/create_cpped_version.pl $i "$PARGS"; done
 
+
+------------------
+* Utility scripts:
+------------------
+create_cpped_version.pl: Used in the above for generating macro free version.
+
+makefile-gen.pl: generates make files in each directory. Options are globally
+                 configurable through config.mk at polybench root.
+  header-gen.pl: refers to 'polybench.spec' file and generates header in
+                 each directory. Allows default problem sizes and datatype to
+                 be configured without going into each header file.
+ 
+    run-all.pl: compiles and runs each kernel.
+      clean.pl: runs make clean in each directory and then removes Makefile.
 

@@ -1,10 +1,3 @@
-/**
- * polybench.c: This file is part of the PolyBench/C 3.2 test suite.
- *
- *
- * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
- * Web address: http://polybench.sourceforge.net
- */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -380,14 +373,14 @@ static
 void *
 xmalloc (size_t num)
 {
-  void* new = NULL;
-  int ret = posix_memalign (&new, 32, num);
-  if (! new || ret)
+  void* cur = NULL;
+  int ret = posix_memalign (&cur, 32, num);
+  if (! cur || ret)
     {
       fprintf (stderr, "[PolyBench] posix_memalign: cannot allocate memory");
       exit (1);
     }
-  return new;
+  return cur;
 }
 
 

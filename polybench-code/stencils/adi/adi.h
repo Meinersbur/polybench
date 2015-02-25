@@ -1,54 +1,55 @@
-/**
- * adi.h: This file is part of the PolyBench/C 3.2 test suite.
- *
- *
- * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
- * Web address: http://polybench.sourceforge.net
- */
-#ifndef ADI_H
-# define ADI_H
+#ifndef _ADI_H
+# define _ADI_H
 
-/* Default to STANDARD_DATASET. */
-# if !defined(MINI_DATASET) && !defined(SMALL_DATASET) && !defined(LARGE_DATASET) && !defined(EXTRALARGE_DATASET)
-#  define STANDARD_DATASET
+/* Default to LARGE_DATASET. */
+# if !defined(MINI_DATASET) && !defined(SMALL_DATASET) && !defined(MEDIUM_DATASET) && !defined(LARGE_DATASET) && !defined(EXTRALARGE_DATASET)
+#  define LARGE_DATASET
 # endif
 
-/* Do not define anything if the user manually defines the size. */
-# if !defined(TSTEPS) && ! defined(N)
-/* Define the possible dataset sizes. */
+# if !defined(TSTEPS) && !defined(N)
+/* Define sample dataset sizes. */
 #  ifdef MINI_DATASET
-#   define TSTEPS 2
-#   define N 32
-#  endif
+#   define TSTEPS 20
+#   define N 20
+#  endif 
 
 #  ifdef SMALL_DATASET
-#   define TSTEPS 10
-#   define N 500
-#  endif
+#   define TSTEPS 40
+#   define N 60
+#  endif 
 
-#  ifdef STANDARD_DATASET /* Default if unspecified. */
-#   define TSTEPS 50
-#   define N 1024
-#  endif
+#  ifdef MEDIUM_DATASET
+#   define TSTEPS 100
+#   define N 200
+#  endif 
 
 #  ifdef LARGE_DATASET
-#   define TSTEPS 50
-#   define N 2000
-#  endif
+#   define TSTEPS 500
+#   define N 1000
+#  endif 
 
 #  ifdef EXTRALARGE_DATASET
-#   define TSTEPS 100
-#   define N 4000
-#  endif
-# endif /* !N */
+#   define TSTEPS 1000
+#   define N 2000
+#  endif 
+
+
+#endif /* !(TSTEPS N) */
 
 # define _PB_TSTEPS POLYBENCH_LOOP_BOUND(TSTEPS,tsteps)
 # define _PB_N POLYBENCH_LOOP_BOUND(N,n)
 
+
 # ifndef DATA_TYPE
 #  define DATA_TYPE double
 #  define DATA_PRINTF_MODIFIER "%0.2lf "
+#  define SCALAR_VAL(x) x
+#  define SQRT_FUN(x) sqrt(x)
+#  define EXP_FUN(x) exp(x)
+#  define POW_FUN(x,y) pow(x,y)
 # endif
 
 
-#endif /* !ADI */
+
+#endif /* !_ADI_H */
+

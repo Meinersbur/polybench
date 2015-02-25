@@ -1,66 +1,67 @@
-/**
- * 2mm.h: This file is part of the PolyBench/C 3.2 test suite.
- *
- *
- * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
- * Web address: http://polybench.sourceforge.net
- */
 #ifndef _2MM_H
 # define _2MM_H
 
-/* Default to STANDARD_DATASET. */
-# if !defined(MINI_DATASET) && !defined(SMALL_DATASET) && !defined(LARGE_DATASET) && !defined(EXTRALARGE_DATASET)
-#  define STANDARD_DATASET
+/* Default to LARGE_DATASET. */
+# if !defined(MINI_DATASET) && !defined(SMALL_DATASET) && !defined(MEDIUM_DATASET) && !defined(LARGE_DATASET) && !defined(EXTRALARGE_DATASET)
+#  define LARGE_DATASET
 # endif
 
-/* Do not define anything if the user manually defines the size. */
-# if !defined(NI) && !defined(NJ) && !defined(NK)
-/* Define the possible dataset sizes. */
+# if !defined(NI) && !defined(NJ) && !defined(NK) && !defined(NL)
+/* Define sample dataset sizes. */
 #  ifdef MINI_DATASET
-#   define NI 32
-#   define NJ 32
-#   define NK 32
-#   define NL 32
-#  endif
+#   define NI 16
+#   define NJ 18
+#   define NK 22
+#   define NL 24
+#  endif 
 
 #  ifdef SMALL_DATASET
-#   define NI 128
-#   define NJ 128
-#   define NK 128
-#   define NL 128
-#  endif
+#   define NI 40
+#   define NJ 50
+#   define NK 70
+#   define NL 80
+#  endif 
 
-#  ifdef STANDARD_DATASET /* Default if unspecified. */
-#   define NI 1024
-#   define NJ 1024
-#   define NK 1024
-#   define NL 1024
-#  endif
+#  ifdef MEDIUM_DATASET
+#   define NI 180
+#   define NJ 190
+#   define NK 210
+#   define NL 220
+#  endif 
 
 #  ifdef LARGE_DATASET
-#   define NI 2000
-#   define NJ 2000
-#   define NK 2000
-#   define NL 2000
-#  endif
+#   define NI 800
+#   define NJ 900
+#   define NK 1100
+#   define NL 1200
+#  endif 
 
 #  ifdef EXTRALARGE_DATASET
-#   define NI 4000
-#   define NJ 4000
-#   define NK 4000
-#   define NL 4000
-#  endif
-# endif /* !N */
+#   define NI 1600
+#   define NJ 1800
+#   define NK 2200
+#   define NL 2400
+#  endif 
+
+
+#endif /* !(NI NJ NK NL) */
 
 # define _PB_NI POLYBENCH_LOOP_BOUND(NI,ni)
 # define _PB_NJ POLYBENCH_LOOP_BOUND(NJ,nj)
 # define _PB_NK POLYBENCH_LOOP_BOUND(NK,nk)
 # define _PB_NL POLYBENCH_LOOP_BOUND(NL,nl)
 
+
 # ifndef DATA_TYPE
 #  define DATA_TYPE double
 #  define DATA_PRINTF_MODIFIER "%0.2lf "
+#  define SCALAR_VAL(x) x
+#  define SQRT_FUN(x) sqrt(x)
+#  define EXP_FUN(x) exp(x)
+#  define POW_FUN(x,y) pow(x,y)
 # endif
 
 
-#endif /* !_2MM */
+
+#endif /* !_2MM_H */
+

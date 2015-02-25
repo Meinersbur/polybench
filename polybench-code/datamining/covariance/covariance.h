@@ -1,54 +1,55 @@
-/**
- * covariance.h: This file is part of the PolyBench/C 3.2 test suite.
- *
- *
- * Contact: Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
- * Web address: http://polybench.sourceforge.net
- */
-#ifndef COVARIANCE_H
-# define COVARIANCE_H
+#ifndef _COVARIANCE_H
+# define _COVARIANCE_H
 
-/* Default to STANDARD_DATASET. */
-# if !defined(MINI_DATASET) && !defined(SMALL_DATASET) && !defined(LARGE_DATASET) && !defined(EXTRALARGE_DATASET)
-#  define STANDARD_DATASET
+/* Default to LARGE_DATASET. */
+# if !defined(MINI_DATASET) && !defined(SMALL_DATASET) && !defined(MEDIUM_DATASET) && !defined(LARGE_DATASET) && !defined(EXTRALARGE_DATASET)
+#  define LARGE_DATASET
 # endif
 
-/* Do not define anything if the user manually defines the size. */
-# if !defined(N) && !defined(M)
-/* Define the possible dataset sizes. */
+# if !defined(M) && !defined(N)
+/* Define sample dataset sizes. */
 #  ifdef MINI_DATASET
+#   define M 28
 #   define N 32
-#   define M 32
-#  endif
+#  endif 
 
 #  ifdef SMALL_DATASET
-#   define N 500
-#   define M 500
-#  endif
+#   define M 80
+#   define N 100
+#  endif 
 
-#  ifdef STANDARD_DATASET /* Default if unspecified. */
-#   define N 1000
-#   define M 1000
-#  endif
+#  ifdef MEDIUM_DATASET
+#   define M 240
+#   define N 260
+#  endif 
 
 #  ifdef LARGE_DATASET
-#   define N 2000
-#   define M 2000
-#  endif
+#   define M 1200
+#   define N 1400
+#  endif 
 
 #  ifdef EXTRALARGE_DATASET
-#   define N 4000
-#   define M 4000
-#  endif
-# endif /* !N */
+#   define M 2600
+#   define N 3000
+#  endif 
 
-# define _PB_N POLYBENCH_LOOP_BOUND(N,n)
+
+#endif /* !(M N) */
+
 # define _PB_M POLYBENCH_LOOP_BOUND(M,m)
+# define _PB_N POLYBENCH_LOOP_BOUND(N,n)
+
 
 # ifndef DATA_TYPE
 #  define DATA_TYPE double
 #  define DATA_PRINTF_MODIFIER "%0.2lf "
+#  define SCALAR_VAL(x) x
+#  define SQRT_FUN(x) sqrt(x)
+#  define EXP_FUN(x) exp(x)
+#  define POW_FUN(x,y) pow(x,y)
 # endif
 
 
-#endif /* !COVARIANCE_H */
+
+#endif /* !_COVARIANCE_H */
+
