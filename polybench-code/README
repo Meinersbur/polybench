@@ -201,7 +201,7 @@ They are all passed as macro definitions during compilation time (e.g,
 
 - POLYBENCH_USE_SCALAR_LB: Use scalar loop bounds instead of parametric ones.
 
-- POLYBENCH_USE_RESTRICT: Use restrict keyword to allow compilers to assume absense of aliasing.
+- POLYBENCH_USE_RESTRICT: Use restrict keyword to allow compilers to assume absence of aliasing.
 
 ---------------
 * PAPI support:
