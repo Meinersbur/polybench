@@ -31,14 +31,14 @@ However, some had non-negligible impact. These kernels are described below.
  - trmm: There was a typo on the loop bounds so that the wrong half of the
    matrix was used in the computation. This led to additional dependences,
    making it harder to parallelize this kernel.
- - lu: An innermost loop was missing. This cause the kernel to perform about half the work
-   compared to a correct implementation of LU decomposition. It is unclear if
-   the original code was intended for input matrices with specific
-   characteristics. The new implementation is the generic LU decomposition.
+ - lu: An innermost loop was missing for the operation to be valid on general
+   matrices. This cause the kernel to perform about half the work compared to a
+   general implementation of LU decomposition. The new implementation is the
+   generic LU decomposition.
 
-In addition, some of the kernels used "unnatural" memory allocation, where
-variables used in accumulation were fully expanded. These variables were changed to 
-only use a scalar, making some of the kernels more challenging.
+In addition, some of the kernels used "high-footprint" memory allocation for
+easier parallelization, where variables used in accumulation were fully
+expanded. These variables were changed to only use a scalar.
 
 =Summary of Changes=
 -Fixed out-of-bounds issue in covariance and 2mm
