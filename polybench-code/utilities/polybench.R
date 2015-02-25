@@ -305,7 +305,7 @@ gramschmidt <- function(M, N) {
 
    for (i in 1:M)
       for (j in 1:N)
-	    A[i,j] <- ((((i-1)*(j-1)) %% M) / M) + 0.5
+	    A[i,j] <- ((((i-1)*(j-1)) %% M) / M)*100 + 10
 		
     res <- qr(A);
 	

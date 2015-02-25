@@ -21,7 +21,7 @@ void init_array(int m, int n,
 
   for (i = 0; i < m; i++)
     for (j = 0; j < n; j++) {
-      A[i][j] = ((DATA_TYPE) (i*j % m) / m ) + 0.5;
+      A[i][j] = (((DATA_TYPE) ((i*j) % m) / m )*100) + 10;
       Q[i][j] = 0.0;
     }
   for (i = 0; i < n; i++)
