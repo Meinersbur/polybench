@@ -8,23 +8,78 @@ Contact:
    Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
    Tomofumi Yuki <tomofumi.yuki@inria.fr>
 
+
+PolyBench features include:
+- A single file, tunable at compile-time, used for the kernel
+  instrumentation. It performs extra operations such as cache flushing
+  before the kernel execution, and can set real-time scheduling to
+  prevent OS interference.
+- Non-null data initialization, and live-out data dump.
+- Syntactic constructs to prevent any dead code elimination on the kernel.
+- Parametric loop bounds in the kernels, for general-purpose implementation.
+- Clear kernel marking, using pragma-based delimiters.
+
+
+PolyBench is currently available in C and in Fortran:
+- See PolyBench/C 4.0 for the C version
+- See PolyBench/Fortran 1.0 for the Fortran version (based on PolyBench/C 3.2)
+
+Available benchmarks (PolyBench/C 4.0)
+
+Benchmark	Description
+2mm		2 Matrix Multiplications (D=A.B; E=C.D)
+3mm		3 Matrix Multiplications (E=A.B; F=C.D; G=E.F)
+adi		Alternating Direction Implicit solver
+atax		Matrix Transpose and Vector Multiplication
+bicg		BiCG Sub Kernel of BiCGStab Linear Solver
+cholesky	Cholesky Decomposition
+correlation	Correlation Computation
+covariance	Covariance Computation
+doitgen		Multiresolution analysis kernel (MADNESS)
+durbin		Toeplitz system solver
+dynprog		Dynamic programming (2D)
+fdtd-2d		2-D Finite Different Time Domain Kernel
+fdtd-apml	FDTD using Anisotropic Perfectly Matched Layer
+gauss-filter	Gaussian Filter
+gemm		Matrix-multiply C=alpha.A.B+beta.C
+gemver		Vector Multiplication and Matrix Addition
+gesummv		Scalar, Vector and Matrix Multiplication
+gramschmidt	Gram-Schmidt decomposition
+jacobi-1D	1-D Jacobi stencil computation
+jacobi-2D	2-D Jacobi stencil computation
+lu		LU decomposition
+ludcmp		LU decomposition
+mvt		Matrix Vector Product and Transpose
+reg-detect	2-D Image processing
+seidel		2-D Seidel stencil computation
+symm		Symmetric matrix-multiply
+syr2k		Symmetric rank-2k operations
+syrk		Symmetric rank-k operations
+trisolv		Triangular solver
+trmm		Triangular matrix-multiply
+
+
 -------------
 * New in 4.0:
 -------------
 
 
-This update includes many changes. Please see CHANGELOG for detailed list of changes.
+This update includes many changes. Please see CHANGELOG for detailed
+list of changes. Most of the benchmarks have been edited/modified.
 
-=Important Note=
- We found a number of bugs in PolyBench kernels that cause the implementation
+* Important Note:
+-----------------
+
+We found a number of bugs in PolyBench kernels that cause the implementation
 to produce outputs that do not match what is expected from the mathematical
 specification. Many of them did not influence the program behavior in an
 important way (e.g., the bug in covariance was simply a missing division in the
 end, which does not influence dependences or the shape of the iteration space).
 However, some had non-negligible impact. These kernels are described below.
 
- - adi: There was an off-by-one error, which made back substitution part of a pass in ADI to not
-   depend on the forward pass, making the program fully tilable.
+ - adi: There was an off-by-one error, which made back substitution
+   part of a pass in ADI to not depend on the forward pass, making the
+   program fully tilable.   
  - syrk: There was a typo on the loop bounds that made the iteration space
    rectangular where it should have been triangular. This has led to additional
    dependences and two times more operations than intended.
@@ -39,46 +94,6 @@ However, some had non-negligible impact. These kernels are described below.
 In addition, some of the kernels used "high-footprint" memory allocation for
 easier parallelization, where variables used in accumulation were fully
 expanded. These variables were changed to only use a scalar.
-
-=Summary of Changes=
--Fixed out-of-bounds issue in covariance and 2mm
- (Reported by Tobias Grosser)
--Fixed a bug in polybench.h when 4D arrays were allocated.
- (Reported by Amarin Phaosawasdi)
--Changed naming of a variable in polybench.c/xmalloc to avoid issues when compiled as C++.
- (Reported by Sven Verdoolaege)
--Added POLYBENCH_USE_RESTRICT to allow compilers to assume alias-free.
- (Patch by Tobias Grosser)
--Added SCALAR_VAL, SQRT_FUN, EXP_FUN, and POW_FUN macros to switch
- float/double versions of the math functions depending on the data type.
-
--Removed dynprog. (Replaced by nussinov)
--Added nussinov; a dynamic programming algorithm for sequence alignment.
- (Code by Dave Wonnacott and his students) 
--Removed reg_detect. (Replaced by deriche)
--Added deriche; edge detector filter.
- (Code by Gael Deest)
--Removed fdtd-apml. (Replaced by heat-3d)
--Added heat-3d; heat equation over 3D data domain.
- (Original specification from Pochoir compiler test case)
--Changed jacobi-1d-imper and jacobi-2d-imper to jacobi-1d and jacobi-2d, respectively.
--jacobi-1d, jacobi-2d, and heat-3d performs two time steps using alternating
- arrays per an iteration of the outermost loop. This is to avoid the copy loop
- in the old xxx-imper versions. The number of stencil iterations are now
- restricted to be even numbers (2x of the parameter TSTEPS).
-
--The following kernels have been modified (bug fixes):
-  adi, durbin, lu, ludcmp, syrk, trmm, cholesky, covariance, correlation
-
--BLAS kernels are now commented with the parameters in original BLAS
- which corresponds to the implementation in PolyBench.
--BLAS kernels now closely matches the original version. However, gemver and
- gesummv remains the same as it is not part of current BLAS.
--Tuned the initialization functions to reduce the possibility to have 'inf'
- in outputs. Specifically, the initial values are much closer to 1 for most
- linear algebra kernels now (was up to N in prior versions).
-
--Added polybench.pdf that explains each kernel in detail.
 
 -------------
 * New in 3.2:
