@@ -82,7 +82,7 @@ users for the past few years.
   iteration alternating the source and target fields, to avoid the
   field copy statement.
 - Almost all benchmarks have been edited to ensure the computation
-  results matches the mathematical specification of the operation.
+  result matches the mathematical specification of the operation.
 - A major effort on documentation and harmonization of problem sizes
   and data allocations schemes.
 
