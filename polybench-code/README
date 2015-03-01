@@ -74,7 +74,7 @@ PolyBench, etc.
 This update includes many changes. Please see CHANGELOG for detailed
 list of changes. Most of the benchmarks have been edited/modified by
 Tomofumi Yuki, thanks to the feedback we have received by PolyBench
-users from the past few years.
+users for the past few years.
 
 - Three benchmarks are out: dynprog, reg-detect, fdtd-apml.
 - Three benchmarks are in: nussinov, deriche, heat-3d.
