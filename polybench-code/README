@@ -43,12 +43,12 @@ deriche		Edge detection filter
 doitgen		Multi-resolution analysis kernel (MADNESS)
 durbin		Toeplitz system solver
 fdtd-2d		2-D Finite Different Time Domain Kernel
-head-3d		Heat equation over 3D data domain
 gauss-filter	Gaussian Filter
 gemm		Matrix-multiply C=alpha.A.B+beta.C
 gemver		Vector Multiplication and Matrix Addition
 gesummv		Scalar, Vector and Matrix Multiplication
 gramschmidt	Gram-Schmidt decomposition
+head-3d		Heat equation over 3D data domain
 jacobi-1D	1-D Jacobi stencil computation
 jacobi-2D	2-D Jacobi stencil computation
 lu		LU decomposition
