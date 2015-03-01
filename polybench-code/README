@@ -40,7 +40,7 @@ cholesky	Cholesky Decomposition
 correlation	Correlation Computation
 covariance	Covariance Computation
 deriche		Edge detection filter
-doitgen		Multiresolution analysis kernel (MADNESS)
+doitgen		Multi-resolution analysis kernel (MADNESS)
 durbin		Toeplitz system solver
 fdtd-2d		2-D Finite Different Time Domain Kernel
 head-3d		Heat equation over 3D data domain
@@ -63,7 +63,7 @@ trisolv		Triangular solver
 trmm		Triangular matrix-multiply
 
 
-See the end of the README for mainling lists, instructions to use
+See the end of the README for mailing lists, instructions to use
 PolyBench, etc.
 
 
@@ -78,6 +78,9 @@ users from the past few years.
 
 - Three benchmarks are out: dynprog, reg-detect, fdtd-apml.
 - Three benchmarks are in: nussinov, deriche, heat-3d.
+- Jacobi-1D and Jacobi-2D perform two time steps in one time loop
+  iteration alternating the source and target fields, to avoid the
+  field copy statement.
 - Almost all benchmarks have been edited to ensure the computation
   results matches the mathematical specification of the operation.
 - A major effort on documentation and harmonization of problem sizes
@@ -97,16 +100,16 @@ described below.
  - adi: There was an off-by-one error, which made back substitution
    part of a pass in ADI to not depend on the forward pass, making the
    program fully tilable.
- - syrk: There was a typo on the loop bounds that made the iteration space
-   rectangular where it should have been triangular. This has led to additional
-   dependences and two times more operations than intended.
- - trmm: There was a typo on the loop bounds so that the wrong half of the
-   matrix was used in the computation. This led to additional dependences,
+- syrk: A typo on the loop bounds made the iteration space rectangular
+   instead of triangular. This has led to additional dependences and
+   two times more operations than intended.
+- trmm: A typo on the loop bounds led to the wrong half of the matrix
+   being used in the computation. This led to additional dependences,
    making it harder to parallelize this kernel.
- - lu: An innermost loop was missing for the operation to be valid on general
-   matrices. This cause the kernel to perform about half the work compared to a
-   general implementation of LU decomposition. The new implementation is the
-   generic LU decomposition.
+- lu: An innermost loop was missing for the operation to be valid on
+   general matrices. This cause the kernel to perform about half the
+   work compared to a general implementation of LU decomposition. The
+   new implementation is the generic LU decomposition.
 
 In addition, some of the kernels used "high-footprint" memory allocation for
 easier parallelization, where variables used in accumulation were fully
