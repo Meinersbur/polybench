@@ -1,3 +1,5 @@
+/* seidel-2d.h: this file is part of PolyBench/C */
+
 #ifndef _SEIDEL_2D_H
 # define _SEIDEL_2D_H
 

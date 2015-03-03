@@ -1,3 +1,5 @@
+/* cholesky.h: this file is part of PolyBench/C */
+
 #ifndef _CHOLESKY_H
 # define _CHOLESKY_H
 

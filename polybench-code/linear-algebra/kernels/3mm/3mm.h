@@ -1,3 +1,5 @@
+/* 3mm.h: this file is part of PolyBench/C */
+
 #ifndef _3MM_H
 # define _3MM_H
 

@@ -1,3 +1,5 @@
+/* jacobi-2d.h: this file is part of PolyBench/C */
+
 #ifndef _JACOBI_2D_H
 # define _JACOBI_2D_H
 

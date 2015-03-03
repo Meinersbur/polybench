@@ -1,3 +1,5 @@
+/* heat-3d.h: this file is part of PolyBench/C */
+
 #ifndef _HEAT_3D_H
 # define _HEAT_3D_H
 

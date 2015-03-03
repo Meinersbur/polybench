@@ -1,3 +1,5 @@
+/* mvt.h: this file is part of PolyBench/C */
+
 #ifndef _MVT_H
 # define _MVT_H
 

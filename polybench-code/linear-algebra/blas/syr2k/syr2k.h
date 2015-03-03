@@ -1,3 +1,5 @@
+/* syr2k.h: this file is part of PolyBench/C */
+
 #ifndef _SYR2K_H
 # define _SYR2K_H
 

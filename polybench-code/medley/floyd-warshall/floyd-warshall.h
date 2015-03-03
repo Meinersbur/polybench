@@ -1,3 +1,5 @@
+/* floyd-warshall.h: this file is part of PolyBench/C */
+
 #ifndef _FLOYD_WARSHALL_H
 # define _FLOYD_WARSHALL_H
 

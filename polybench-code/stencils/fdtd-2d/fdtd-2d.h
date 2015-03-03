@@ -1,3 +1,5 @@
+/* fdtd-2d.h: this file is part of PolyBench/C */
+
 #ifndef _FDTD_2D_H
 # define _FDTD_2D_H
 

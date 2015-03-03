@@ -1,3 +1,5 @@
+/* symm.h: this file is part of PolyBench/C */
+
 #ifndef _SYMM_H
 # define _SYMM_H
 

@@ -1,3 +1,5 @@
+/* trmm.h: this file is part of PolyBench/C */
+
 #ifndef _TRMM_H
 # define _TRMM_H
 

@@ -1,3 +1,5 @@
+/* bicg.h: this file is part of PolyBench/C */
+
 #ifndef _BICG_H
 # define _BICG_H
 

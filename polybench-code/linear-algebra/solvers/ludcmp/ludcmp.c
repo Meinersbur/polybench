@@ -1,3 +1,5 @@
+/* ludcmp.c: this file is part of PolyBench/C */
+
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>

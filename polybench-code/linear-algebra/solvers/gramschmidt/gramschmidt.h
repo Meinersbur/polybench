@@ -1,3 +1,5 @@
+/* gramschmidt.h: this file is part of PolyBench/C */
+
 #ifndef _GRAMSCHMIDT_H
 # define _GRAMSCHMIDT_H
 

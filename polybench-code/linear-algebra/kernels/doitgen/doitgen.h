@@ -1,3 +1,5 @@
+/* doitgen.h: this file is part of PolyBench/C */
+
 #ifndef _DOITGEN_H
 # define _DOITGEN_H
 
