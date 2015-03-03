@@ -1,3 +1,5 @@
+/* correlation.h: this file is part of PolyBench/C */
+
 #ifndef _CORRELATION_H
 # define _CORRELATION_H
 

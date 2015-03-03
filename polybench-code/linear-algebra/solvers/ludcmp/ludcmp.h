@@ -1,3 +1,5 @@
+/* ludcmp.h: this file is part of PolyBench/C */
+
 #ifndef _LUDCMP_H
 # define _LUDCMP_H
 

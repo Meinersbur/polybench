@@ -1,3 +1,5 @@
+/* gemver.h: this file is part of PolyBench/C */
+
 #ifndef _GEMVER_H
 # define _GEMVER_H
 

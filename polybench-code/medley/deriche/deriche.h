@@ -1,3 +1,5 @@
+/* deriche.h: this file is part of PolyBench/C */
+
 #ifndef _DERICHE_H
 # define _DERICHE_H
 

@@ -1,3 +1,5 @@
+/* adi.h: this file is part of PolyBench/C */
+
 #ifndef _ADI_H
 # define _ADI_H
 

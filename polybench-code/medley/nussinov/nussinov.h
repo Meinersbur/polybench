@@ -1,3 +1,5 @@
+/* nussinov.h: this file is part of PolyBench/C */
+
 #ifndef _NUSSINOV_H
 # define _NUSSINOV_H
 

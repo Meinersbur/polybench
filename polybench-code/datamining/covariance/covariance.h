@@ -1,3 +1,5 @@
+/* covariance.h: this file is part of PolyBench/C */
+
 #ifndef _COVARIANCE_H
 # define _COVARIANCE_H
 

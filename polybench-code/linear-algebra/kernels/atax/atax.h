@@ -1,3 +1,5 @@
+/* atax.h: this file is part of PolyBench/C */
+
 #ifndef _ATAX_H
 # define _ATAX_H
 

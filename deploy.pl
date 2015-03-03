@@ -13,8 +13,7 @@ my $VERBOSE = 1;
 
 my $HEADER = << "EOS";
 /**
- * __FILENAME__: This file is part of the PolyBench/C 4.0 test suite.
- * This version is stamped on Feb. 25, 2015
+ * This version is stamped on Mar. 3, 2015
  *
  * Contact:
  *   Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>

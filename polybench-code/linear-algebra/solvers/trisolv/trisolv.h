@@ -1,3 +1,5 @@
+/* trisolv.h: this file is part of PolyBench/C */
+
 #ifndef _TRISOLV_H
 # define _TRISOLV_H
 

@@ -1,3 +1,5 @@
+/* durbin.h: this file is part of PolyBench/C */
+
 #ifndef _DURBIN_H
 # define _DURBIN_H
 

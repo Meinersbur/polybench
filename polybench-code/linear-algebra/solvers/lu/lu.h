@@ -1,3 +1,5 @@
+/* lu.h: this file is part of PolyBench/C */
+
 #ifndef _LU_H
 # define _LU_H
 
