@@ -710,13 +710,22 @@ The problem sizes for these kernels match those of other solvers (e.g., {\tt cho
 \end{itemize}
 
 \subsection*{Summary of Characteristics}
-Table~\ref{tab:summary} summarizes the number of operations and memory usage of each kernel.
-The problem size parameters are assumed to take the same value $n$.
-
+Table~\ref{tab:summary} summarizes the number of operations and memory usage of
+each kernel. Although PolyBench discourages evaluations using subsets of its
+kernels, some kernels may not be relevant in some contexts. One possible use of
+these characteristics are in helping the explanation of the selection (of
+subsets), in combination with the categorization.
 
 \begin{table}
 \centering
-\caption{\label{tab:summary}Table}
+\caption{\label{tab:summary}
+Table of kernel characteristics. The problem size parameters are assumed to
+take the same value $n$. Calls to math functions (e.g., {\tt sqrt}) are also
+consider to be one operation. For kernels that use integers as the default
+datatype ({\tt nussinov}, {\tt floyd-warshall}), the number of operations only
+count those related to the main computation, and do not include those for iterating 
+over loops.
+}
 \tabulinesep=2pt
 \begin{tabu}{|c|r|r|r|r|}
 \hline
