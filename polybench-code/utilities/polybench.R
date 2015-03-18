@@ -282,7 +282,7 @@ cholesky <- function(N) {
 	   A[i,i] <- 1;
 	}
 	
-	A <- t(A) %*% A;
+	A <- A %*% t(A);
 	
 	res <- chol(A);
 }
@@ -323,7 +323,7 @@ lu.polybench <- function(N) {
 	   A[i,i] <- 1;
 	}
 	
-	A <- t(A) %*% A;
+	A <- A %*% t(A);
 	
 	res <- expand(lu(A));
 }
@@ -341,7 +341,7 @@ ludcmp <- function(N) {
 	   A[i,i] <- 1;
 	}
 	
-	A <- t(A) %*% A;
+	A <- A %*% t(A);
 	
 	res <- solve(A, b);
 }
