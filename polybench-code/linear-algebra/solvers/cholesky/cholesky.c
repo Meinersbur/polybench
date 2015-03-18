@@ -81,14 +81,12 @@ void kernel_cholesky(int n,
   for (i = 0; i < _PB_N; i++) {
      //j<i
      for (j = 0; j < i; j++) {
-        A[i][j] = A[i][j];
         for (k = 0; k < j; k++) {
            A[i][j] -= A[i][k] * A[j][k];
         }
         A[i][j] /= A[j][j];
      }
      // i==j case
-     A[i][i] = A[i][i];
      for (k = 0; k < i; k++) {
         A[i][i] -= A[i][k] * A[i][k];
      }
