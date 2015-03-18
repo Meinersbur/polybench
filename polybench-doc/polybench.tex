@@ -357,7 +357,7 @@ algorithm computes the following, where the computation starts from the
 upper-left corner of $L$ and proceeds row by row.
 \[\mathtt{L}(i,j) = \begin{cases}
 i=j & : \displaystyle \sqrt{\mathtt{A}(i,i)-\sum_{k=0}^{i-1}\mathtt{L}(i,k)^2} \\
-i>j & : \displaystyle \frac{\displaystyle \mathtt{A}(i,j) - \sum_{k=0}^{j-1} \mathtt{L}(i,k)\mathtt{L}(k,j)}{\mathtt{L}(j,j)}
+i>j & : \displaystyle \frac{\displaystyle \mathtt{A}(i,j) - \sum_{k=0}^{j-1} \mathtt{L}(i,k)\mathtt{L}(j,k)}{\mathtt{L}(j,j)}
 \end{cases}\]
 
 
