@@ -1,0 +1,4 @@
+2015-04-01  Louis-Noel Pouchet  <pouchet@cs.ucla.edu>
+
+	* ChangeLog-internal: New. ChangeLog not to be distributed.
+	* utilities/polybench.c: Fix the support of POLYBENCH_GFLOPS.
