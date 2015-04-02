@@ -8,15 +8,20 @@
 
 my $TARGET_DIR = ".";
 
-if ($#ARGV != 0) {
-   printf("usage perl run-all.pl target-dir\n");
+if ($#ARGV != 0 && $#ARGV != 1) {
+   printf("usage perl run-all.pl target-dir [output-file]\n");
    exit(1);
 }
 
 
 
-if ($#ARGV == 0) {
+if ($#ARGV >= 0) {
    $TARGET_DIR = $ARGV[0];
+}
+
+my $OUTFILE = "";
+if ($#ARGV == 1) {
+   $OUTFILE = $ARGV[1];
 }
 
 
@@ -38,6 +43,7 @@ foreach $cat (@categories) {
         my $kernel = $dir;
         my $targetDir = $target.'/'.$dir;
         my $command = "cd $targetDir; make clean; make; ./$kernel";
+	$command .= " 2>> $OUTFILE";
         print($command."\n");
         system($command);
    }
