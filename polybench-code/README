@@ -43,7 +43,6 @@ deriche		Edge detection filter
 doitgen		Multi-resolution analysis kernel (MADNESS)
 durbin		Toeplitz system solver
 fdtd-2d		2-D Finite Different Time Domain Kernel
-gauss-filter	Gaussian Filter
 gemm		Matrix-multiply C=alpha.A.B+beta.C
 gemver		Vector Multiplication and Matrix Addition
 gesummv		Scalar, Vector and Matrix Multiplication
@@ -67,11 +66,12 @@ See the end of the README for mailing lists, instructions to use
 PolyBench, etc.
 
 -------------
-* New in 4.0?:
+* New in 4.1:
 -------------
  - Fixed a bug in documentation of cholesky.
  - Removed two statements from cholesky, which were useless with inplace memory allocation.
  - Updated polybench.R in utilities to match the change in input generation of lu/ludcmp/cholesky.
+ - Simplified the macros for switching between data types.
 
 -------------
 * New in 4.0a:

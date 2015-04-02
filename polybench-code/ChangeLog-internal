@@ -2,3 +2,13 @@
 
 	* ChangeLog-internal: New. ChangeLog not to be distributed.
 	* utilities/polybench.c: Fix the support of POLYBENCH_GFLOPS.
+
+2015-04-02  Tomofumi
+
+	* Fixed issues with SCALAR_VAL macro in gessummv,2mm,3mm,atax,bicg,doitgen,durbin,gramschmidt,adi (reported by Sven)
+	* Simplified macros for data type changes.
+		- new macros DATA_TYPE_IS_XXX now takes care of all other macros (printf specifier, sqrt,pow,exp)
+		- affectted files are all headers of the kernels + header-gen.pl
+	* Updated README with the above
+		- plus removed gauss-filter from the list of kernels
+
