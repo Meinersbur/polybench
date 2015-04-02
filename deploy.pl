@@ -13,7 +13,7 @@ my $VERBOSE = 1;
 
 my $HEADER = << "EOS";
 /**
- * This version is stamped on Mar. 3, 2015
+ * This version is stamped on Apr. 2, 2015
  *
  * Contact:
  *   Louis-Noel Pouchet <pouchet@cse.ohio-state.edu>
@@ -72,6 +72,7 @@ sub cloneDir() {
      if (-d $srcFile) {
         &cloneDir($srcFile, $tgtFile);
      } else {
+         next if ($file =~ /ChangeLog-internal/);
          if ($file =~ /\.[ch]$/) {
              my $header = $HEADER;
              $header =~ s/__FILENAME__/$file/;
