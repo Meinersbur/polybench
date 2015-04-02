@@ -67,6 +67,13 @@ See the end of the README for mailing lists, instructions to use
 PolyBench, etc.
 
 -------------
+* New in 4.0?:
+-------------
+ - Fixed a bug in documentation of cholesky.
+ - Removed two statements from cholesky, which were useless with inplace memory allocation.
+ - Updated polybench.R in utilities to match the change in input generation of lu/ludcmp/cholesky.
+
+-------------
 * New in 4.0a:
 -------------
  - Fixed a bug in jacobi-1d (Reported by Sven Verdoolaege)
