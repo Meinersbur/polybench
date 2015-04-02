@@ -1,5 +1,5 @@
 * * * * * * * * * *
-* PolyBench/C 4.0 *
+* PolyBench/C 4.1 *
 * * * * * * * * * *
 
 Copyright (c) 2011-2015 the Ohio State University.
@@ -25,10 +25,10 @@ include:
 
 
 PolyBench is currently available in C and in Fortran:
-- See PolyBench/C 4.0 for the C version
+- See PolyBench/C 4.1 for the C version
 - See PolyBench/Fortran 1.0 for the Fortran version (based on PolyBench/C 3.2)
 
-Available benchmarks (PolyBench/C 4.0)
+Available benchmarks (PolyBench/C 4.1)
 
 Benchmark	Description
 2mm		2 Matrix Multiplications (E=A.B; F=E.C; G=F+D)
@@ -68,10 +68,12 @@ PolyBench, etc.
 -------------
 * New in 4.1:
 -------------
- - Fixed a bug in documentation of cholesky.
- - Removed two statements from cholesky, which were useless with inplace memory allocation.
- - Updated polybench.R in utilities to match the change in input generation of lu/ludcmp/cholesky.
+ - Added LICENSE.txt
+ - Fixed minor issues with cholesky both in documentation and implementation. 
+    (Reported by François Gindraud)
  - Simplified the macros for switching between data types.
+    - Now users may specifiy DATA_TYPE_IS_XXX where XXX is one of 
+      FLOAT/DOUBLE/INT to change all macros asscosiated with data types.
 
 -------------
 * New in 4.0a:

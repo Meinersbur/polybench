@@ -1,4 +1,19 @@
 -----------------
+* Changes in 4.1:
+-----------------
+  - Added LICENSE.txt
+  - Fixed a bug in documentation of cholesky. (Reported by François Gindraud)
+  - Removed two statements from cholesky, which were useless with inplace 
+    memory allocation. (Reported by François Gindraud)
+  - Updated polybench.R in utilities to match the change in input generation 
+    of lu/ludcmp/cholesky.
+  - Simplified the macros for switching between data types.
+      - Now users may specifiy DATA_TYPE_IS_XXX where XXX is one of 
+        FLOAT/DOUBLE/INT to change all macros asscosiated with data types.
+  - Fixed issues with SCALAR_VAL macro in some kernels. 
+    (Reported by Sven Verdoolaege)
+
+-----------------
 * Changes in 4.0:
 -----------------
 
