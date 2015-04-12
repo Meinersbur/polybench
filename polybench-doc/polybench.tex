@@ -8,6 +8,7 @@
 \usepackage{amsfonts}
 \usepackage{enumerate}
 \usepackage{url}
+\usepackage{xspace}
 
 \usepackage{algorithm}
 \usepackage{algorithmic}
@@ -36,7 +37,9 @@
 
 \newcommand\kernel[1]{\phantomsection \addcontentsline{toc}{subsubsection}{{\tt #1}} \subsubsection*{{\tt #1}}}
 
-\title{PolyBench 4.0}
+\newcommand\polybenchversion{4.1\xspace}
+
+\title{PolyBench \polybenchversion}
 \author{
   Tomofumi Yuki\\
   Inria / LIP / ENS Lyon\\
@@ -47,6 +50,7 @@
   \texttt{pouchet@cse.ohio-state.edu}
 }
 
+
 \begin{document}
 \maketitle
 
@@ -56,7 +60,7 @@
 
 \sloppy
 
-\section{PolyBench 4.0 Kernels}
+\section{PolyBench \polybenchversion Kernels}
 This document describes computations performed in PolyBench kernels from
 mathematical stand point. The description is detached from implementation
 decisions to provide a single and consistent point of reference for
@@ -629,7 +633,7 @@ characteristic of Jacobi method. The computation in PolyBench is simplified as
 simply taking the average of three points.
 
 
-\[\mathtt{data}^{t}_{(i)} = \mathtt{mean}\left(\mathtt{data}^{t-1}_{(i)} + \mathtt{data}^{t-1}_{(i-1)} + \mathtt{data}^{t-1}_{(i+1)}\right)\]
+\[\mathtt{data}^{t}_{(i)} = 0.33333 * \left(\mathtt{data}^{t-1}_{(i)} + \mathtt{data}^{t-1}_{(i-1)} + \mathtt{data}^{t-1}_{(i+1)}\right)\]
 
 
 
@@ -637,7 +641,7 @@ simply taking the average of three points.
 Jacobi-style stencil computation over 2D data with 5-point stencil pattern.
 The computation is simplified as simply taking the average of five points.
 
-\[\mathtt{data}^{t}_{(i,j)} = \mathtt{mean}\left(\mathtt{data}^{t-1}_{(i,j)} + \mathtt{data}^{t-1}_{(i-1,j)} + 
+\[\mathtt{data}^{t}_{(i,j)} = 0.2 * \left(\mathtt{data}^{t-1}_{(i,j)} + \mathtt{data}^{t-1}_{(i-1,j)} + 
   \mathtt{data}^{t-1}_{(i+1,j)} + \mathtt{data}^{t-1}_{(i,j-1)} + \mathtt{data}^{t-1}_{(i,j+1)}\right)\]
 
 \kernel{seidel-2d}
@@ -648,12 +652,12 @@ difference is that values computed at the same time step is used, which changes
 its convergence and other properties.  The computation in PolyBench is
 simplified as simply taking the average of nine points.
 
-\[\mathtt{data}^{t}_{(i,j)} = \mathtt{mean}\left(
+\[\mathtt{data}^{t}_{(i,j)} = \left(
 \begin{array}{c}
-   \mathtt{data}^{t-1}_{(i-1,j-1)}, \mathtt{data}^{t-1}_{(i-1,j)},  \mathtt{data}^{t-1}_{(i-1,j+1)}, \\
-   \mathtt{data}^{t-1}_{(i,j-1)}, \mathtt{data}^{t-1}_{(i,j)},  \mathtt{data}^{t-1}_{(i-1,j+1)}, \\
-    \mathtt{data}^{t-1}_{(i+1,j-1)}, \mathtt{data}^{t-1}_{(i+1,j)}, \mathtt{data}^{t-1}_{(i+1,j+1)}
-\end{array}\right)\]
+   \mathtt{data}^{t-1}_{(i-1,j-1)} + \mathtt{data}^{t-1}_{(i-1,j)} +  \mathtt{data}^{t-1}_{(i-1,j+1)} + \\
+   \mathtt{data}^{t-1}_{(i,j-1)} + \mathtt{data}^{t-1}_{(i,j)} +  \mathtt{data}^{t-1}_{(i-1,j+1)} + \\
+    \mathtt{data}^{t-1}_{(i+1,j-1)} + \mathtt{data}^{t-1}_{(i+1,j)} + \mathtt{data}^{t-1}_{(i+1,j+1)}
+\end{array}\right)/9\]
 
 \section{C Implementation}
 The C implementation follows the algorithms described in this document. There are many different ways
@@ -687,7 +691,7 @@ with how the inputs are generated.
 \end{itemize}
 
 \subsection*{Pre-defined Problem Sizes}
-PolyBench/C 4.0 comes with 5 pre-defined problem sizes. The problem sizes are
+PolyBench/C \polybenchversion comes with 5 pre-defined problem sizes. The problem sizes are
 primarily derived from the memory requirements such that different levels of
 the memory hierarchy are exercised.
 
