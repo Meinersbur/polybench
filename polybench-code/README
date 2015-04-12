@@ -70,10 +70,10 @@ PolyBench, etc.
 -------------
  - Added LICENSE.txt
  - Fixed minor issues with cholesky both in documentation and implementation. 
-    (Reported by François Gindraud)
- - Simplified the macros for switching between data types.
-    - Now users may specifiy DATA_TYPE_IS_XXX where XXX is one of 
-      FLOAT/DOUBLE/INT to change all macros asscosiated with data types.
+   (Reported by François Gindraud)
+ - Simplified the macros for switching between data types. Now users
+   may specifiy DATA_TYPE_IS_XXX where XXX is one of FLOAT/DOUBLE/INT
+   to change all macros asscosiated with data types.
 
 -------------
 * New in 4.0a:
