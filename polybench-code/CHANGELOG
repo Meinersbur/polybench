@@ -8,8 +8,8 @@
   - Updated polybench.R in utilities to match the change in input generation
     of lu/ludcmp/cholesky.
   - Simplified the macros for switching between data types.
-      - Now users may specifiy DATA_TYPE_IS_XXX where XXX is one of
-        FLOAT/DOUBLE/INT to change all macros asscosiated with data types.
+      - Now users may specify DATA_TYPE_IS_XXX where XXX is one of
+        FLOAT/DOUBLE/INT to change all macros associated with data types.
   - Fixed a typo in Jacobi-1d loop iterators.
   - Fixed issues with SCALAR_VAL macro in some kernels.
     (Reported by Sven Verdoolaege)
