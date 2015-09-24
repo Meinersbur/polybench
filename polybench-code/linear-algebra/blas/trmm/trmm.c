@@ -64,7 +64,6 @@ void kernel_trmm(int m, int n,
 		 DATA_TYPE POLYBENCH_2D(B,M,N,m,n))
 {
   int i, j, k;
-  DATA_TYPE temp;
 
 //BLAS parameters
 //SIDE   = 'L'
