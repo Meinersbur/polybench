@@ -82,7 +82,7 @@ void polybench_flush_cache()
   int i;
   double tmp = 0.0;
 #ifdef _OPENMP
-#pragma omp parallel for reduction(tmp:+) private(i)
+#pragma omp parallel for reduction(+:tmp) private(i)
 #endif
   for (i = 0; i < cs; i++)
     tmp += flush[i];
