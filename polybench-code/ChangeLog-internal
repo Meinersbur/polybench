@@ -1,3 +1,8 @@
+2015-12-14 TOmofumi Yuki <tomofumi.yuki@inria.fr>
+	* utilities/polybench.c: Fixed the typo introduced in the previous change.
+        The reduction clause was written as (tmp:+) where it should have been (+:tmp).
+        Reported by Sven Verdoolaege <sven.verdoolaege@gmail.com>.
+
 2015-09-02  Louis-Noel Pouchet  <pouchet@cs.ucla.edu>
 
 	* utilities/polybench.c: Fix OpenMP pragma for flush_cache: was
